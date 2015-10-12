@@ -25,9 +25,9 @@ core.aws is compatible with Java 8 and ant 1.9.3.
 core.aws is dependent on the [agility-platform-sdk project](https://github.com/csc/agility-platform-sdk). The core.aws ant build file requires that agility-platform-sdk be built first.
 
 If you want to edit core.aws using Eclipse you'll need to define Eclipse build path variables:
-* IVY-LIB - Contains the path to the *ivy-lib* directory under agility-platform-sdk
-* COMMON-LIB - Contains the path to the *lib* directory under agility-platform-sdk
-* DIST - Contains the path to the *dist* directory under agility-platform-sdk
+* IVY-LIB: Contains the path to the *ivy-lib* directory under agility-platform-sdk
+* COMMON-LIB: Contains the path to the *lib* directory under agility-platform-sdk
+* DIST: Contains the path to the *dist* directory under agility-platform-sdk
 
 ### Reference Implementations
 Examples of utilizing the core.aws bundle with various AWS APIs are provided with the unit tests:
@@ -39,8 +39,8 @@ Examples of utilizing the core.aws bundle with various AWS APIs are provided wit
 ## Unit Testing
 For maximum unit testing that includes direct interaction with AWS, populate a junit.properties file in the base directory with valid credentials:
 ```
-aws_access_key=&lt;unit-test-access-key&gt;
-aws_secret_key=&lt;unit-test-secret-key&lt;
+aws_access_key=<unit-test-access-key>
+aws_secret_key=<unit-test-secret-key>
 ```
 
 To generate and view code coverage metrics, open the coverage/report/index.html file after running this command:
