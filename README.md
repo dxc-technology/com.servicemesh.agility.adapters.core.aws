@@ -13,7 +13,7 @@ The primary interfaces in core.aws for communications are:
 
 com.servicemesh.agility.adapters.core.aws.util.EC2SecurityGroupOperations manages AWS Elastic Compute Cloud&trade; (EC2) Security Groups.
 
-The core.aws bundle uses log4j and has two levels to assist in adapter troubleshooting - *DEBUG* and the finer-grained *TRACE* - that by default are not disabled. To enable both, add the following line to `/opt/agility-platform/etc/com.servicemesh.agility.logging.cfg`:
+The core.aws bundle uses log4j and has two levels to assist in adapter troubleshooting - *DEBUG* and the finer-grained *TRACE* - that by default are not enabled. To enable both, add the following line to `/opt/agility-platform/etc/com.servicemesh.agility.logging.cfg`:
 ```
 log4j.logger.com.servicemesh.agility.adapters.core.aws=TRACE
 ```
