@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ivy-settings>
+  <settings defaultResolver="ivy" />
+  <resolvers>
+    <url name="maven-central" m2compatible="true" >
+        <artifact pattern="http://central.maven.org/maven2/[organization]/[module]/[revision]/[artifact]-[revision]([tag]).[ext]" />
+        <ivy pattern="http://central.maven.org/maven2/[organization]/[module]/[revision]/[module]-[revision].[ext]" />
+    </url>
+
+    <chain name="ivy" returnFirst="true">
+        <resolver ref="maven-central" />
+    </chain>
+
+    <!-- Used for CI release builds -->
+    <chain name="release" returnFirst="true">
+    </chain>
+  </resolvers>
+</ivy-settings>
