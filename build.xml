@@ -370,6 +370,7 @@
       <delete dir="${bin}"/>
       <delete dir="${dist}"/>
       <delete dir="${ivy.lib}"/>
+      <delete file="${basedir}/apidocs.log"/>
    </target>
 
    <target name="clean_test" description="Deletes all test artifacts.">
