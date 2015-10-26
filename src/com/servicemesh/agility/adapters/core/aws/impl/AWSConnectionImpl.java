@@ -128,57 +128,71 @@ public class AWSConnectionImpl implements AWSConnection
     }
 
     // Implements the bulk of the AWS signature version 4 signing process.
-    private void completeQueryParams(Map<String, String> headers, QueryParams params, HttpMethod method, String requestURI,
+    private Map<String, String> completeQueryParams(Map<String, String> headers, QueryParams params, HttpMethod method, String requestURI,
             Object content) throws Exception
     {
-        // Completed AWS signature version 4 example from AWS doc:
+        // Completed AWS signature version 4 example:
         // GET https://iam.amazonaws.com/?Action=ListUsers&Version=2010-05-08&
-        // X-Amz-Algorithm=AWS4-HMAC-SHA256&
-        // X-Amz-Credential=AKIDEXAMPLE/20110909/us-east-1/iam/aws4_request&
         // X-Amz-Date=20110909T233600Z&
-        // X-Amz-SignedHeaders=content-type;host&
-        // X-Amz-Signature=525d1a96c69b5549dd78dbbec8efe26410...9fd2 HTTP/1.1
         // Content-type: application/json
         // host: iam.amazonaws.com
+        // Authorization: AWS4-HMAC-SHA256 \
+        // Credential=AKIDEXAMPLE/20110909/us-east-1/iam/aws4_request, \
+        // SignedHeaders=content-type;host;x-amz-date, Signature=ced6...456c
 
         // For signed headers, AWS doc states: "the HTTP host header is
         // required. Any x-amz-* headers that you plan to add to the request
         // are also required for signature calculation."
+        SortedMap<String, String> allHeaders = new TreeMap<String, String>();
         SortedMap<String, String> signedHeadersMap = new TreeMap<String, String>();
         signedHeadersMap.put("host", _endpoint.getHostName());
 
+        Date now = Calendar.getInstance().getTime();
+        String awsDate = AWS_DATE_FMT.format(now);
+        signedHeadersMap.put("x-amz-date", awsDate);
+
+        String contentHash = null;
+        if (content != null) {
+            if (content instanceof String)
+                contentHash = getHash((String)content);
+            else if (content instanceof byte[])
+                contentHash = getHashFromBytes((byte[])content);
+
+            signedHeadersMap.put("x-amz-content-sha256", contentHash);
+        }
+        else {
+            contentHash = getHash("");
+        }
+        allHeaders.putAll(signedHeadersMap);
+        
         if (headers != null) {
+            allHeaders.putAll(headers);
             for (Map.Entry<String, String> entry : headers.entrySet()) {
                 String key = entry.getKey().toLowerCase();
                 if (key.startsWith("x-amz"))
-                    signedHeadersMap.put(entry.getKey(), entry.getValue());
+                    signedHeadersMap.put(key, entry.getValue());
             }
         }
         StringBuilder canonicalHeaders = new StringBuilder();
         StringBuilder signedHeaders = new StringBuilder();
 
         for (Map.Entry<String, String> entry : signedHeadersMap.entrySet()) {
-            canonicalHeaders.append(entry.getKey()).append(":").append(entry.getValue()).append("\n");
+            String key = entry.getKey();
+            canonicalHeaders.append(key).append(":").append(entry.getValue()).append("\n");
             if (signedHeaders.length() > 0) {
                 signedHeaders.append(";");
             }
-            signedHeaders.append(entry.getKey());
+            signedHeaders.append(key);
         }
 
         // Task 1: Create a Canonical Request For Signature Version 4
         // http://docs.aws.amazon.com/general/latest/gr/sigv4-create-canonical-request.html
-        Date now = Calendar.getInstance().getTime();
-        String awsDate = AWS_DATE_FMT.format(now);
         String signingDate = SIGNING_DATE_FMT.format(now);
 
         String credScope = signingDate + "/" + _endpoint.getRegionName() + "/" + _endpoint.getServiceName() + "/aws4_request";
         String awsCred = _cred.getPublicKey() + "/" + credScope;
 
-        params.add(new QueryParam("X-Amz-Algorithm", SIGNING_ALGORITHM));
-        params.add(new QueryParam("X-Amz-Credential", awsCred));
-        params.add(new QueryParam("X-Amz-Date", awsDate));
         params.add(new QueryParam("X-Amz-Expires", Integer.toString(_endpoint.getUrlExpireSecs())));
-        params.add(new QueryParam("X-Amz-SignedHeaders", signedHeaders.toString()));
 
         // Strip the leading '?' for the canonical query string. Also,
         // QueryParam uses the java.net.URLEncoder with a UTF-8 encoding. AWS
@@ -196,12 +210,6 @@ public class AWSConnectionImpl implements AWSConnection
             canonicalQueryString = canonicalQueryString.replace("*", "%2A");
         if (canonicalQueryString.contains("%7E"))
             canonicalQueryString = canonicalQueryString.replace("%7E", "~");
-
-        // Amazon doc: "You don't include a payload hash in the Canonical
-        // Request, because when you create a presigned URL, you don't know
-        // anything about the payload. Instead, you use a constant string
-        // "UNSIGNED-PAYLOAD"."
-        String contentHash = (content != null) ? "UNSIGNED-PAYLOAD" : getHash("");
 
         if ((requestURI == null || (requestURI.isEmpty())))
             requestURI = "/";
@@ -229,7 +237,19 @@ public class AWSConnectionImpl implements AWSConnection
 
         // Task 4: Add the Signing Information to the Request
         // http://docs.aws.amazon.com/general/latest/gr/sigv4-add-signature-to-request.html
-        params.add(new QueryParam("X-Amz-Signature", signature));
+        StringBuilder authorization = new StringBuilder();
+        authorization.append(SIGNING_ALGORITHM).append(" Credential=").
+            append(awsCred);
+
+        if (signedHeaders.length() > 0) {
+            authorization.append(", SignedHeaders=")
+                .append(signedHeaders.toString());
+        }
+        authorization.append(", Signature=").append(signature);
+        if (_logger.isTraceEnabled())
+            _logger.trace("Authorization: " + authorization.toString());
+        allHeaders.put("Authorization", authorization.toString());
+        return allHeaders;
     }
 
     private String getHash(String value) throws Exception
@@ -323,27 +343,36 @@ public class AWSConnectionImpl implements AWSConnection
                 trc.append(_endpoint.getVersion());
                 _logger.trace(trc.toString());
             }
-            completeQueryParams(headers, params, method, requestURI, resource);
+            boolean isContentEncoded = false;
+            Object content = resource;
+            if (content != null) {
+                if ((! (content instanceof java.lang.String)) &&
+                    (! (content instanceof byte[]))) {
+                    content = _endpoint.encode(resource);
+                    isContentEncoded = true;
+                }
+            }
+
+            Map<String, String> allHeaders =
+                completeQueryParams(headers, params, method, requestURI,
+                                    content);
             uri = getURI(requestURI, params);
             IHttpRequest request = HttpClientFactory.getInstance().createRequest(method, uri);
 
-            if (resource != null) {
-                if (resource instanceof java.lang.String) {
-                    request.setContent((String) resource);
+            if (content != null) {
+                if (content instanceof java.lang.String) {
+                    request.setContent((String) content);
                 }
-                else if (resource instanceof byte[]) {
-                    request.setContent((byte[]) resource);
+                else if (content instanceof byte[]) {
+                    request.setContent((byte[]) content);
                 }
-                else {
-                    request.setContent(_endpoint.encode(resource));
+                if (isContentEncoded) {
                     addContentTypeHeader(request);
                 }
             }
 
-            if (headers != null) {
-                for (Map.Entry<String, String> entry : headers.entrySet()) {
-                    addHeader(request, entry.getKey(), entry.getValue());
-                }
+            for (Map.Entry<String, String> entry : allHeaders.entrySet()) {
+                addHeader(request, entry.getKey(), entry.getValue());
             }
 
             if (_logger.isDebugEnabled()) {

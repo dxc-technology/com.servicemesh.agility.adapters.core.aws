@@ -2,6 +2,7 @@
 <classpath>
   <classpathentry kind="src" path="src"/>
   <classpathentry kind="src" path="test/unit/src"/>
+  <classpathentry kind="src" path="test/unit/aws/cloudfront"/>
   <classpathentry kind="src" path="test/unit/aws/elb"/>
   <classpathentry kind="src" path="test/unit/aws/rds"/>
   <classpathentry kind="src" path="test/unit/aws/s3"/>

@@ -31,7 +31,7 @@
    <property name="locales" value="locales" />
 
    <property name="version.major" value="1"/>
-   <property name="version.minor" value="0"/>
+   <property name="version.minor" value="1"/>
    <property name="version.build" value="0"/>
    <property name="bundle.version"
              value="${version.major}.${version.minor}.${version.build}"/>
@@ -167,9 +167,12 @@
       <antcall target="unit_test_aws_compile">
          <param name="aws_api" value="s3"/>
       </antcall>
-          <antcall target="unit_test_aws_compile">
-             <param name="aws_api" value="ec2"/>
-          </antcall>
+      <antcall target="unit_test_aws_compile">
+         <param name="aws_api" value="ec2"/>
+      </antcall>
+      <antcall target="unit_test_aws_compile">
+         <param name="aws_api" value="cloudfront"/>
+      </antcall>
       <echo message="Compiling the unit test source files..."/>
       <javac destdir="${test.bin}" debug="on" fork="true"
              includeantruntime="false">
