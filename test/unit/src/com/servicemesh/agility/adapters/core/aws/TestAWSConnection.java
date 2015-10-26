@@ -20,6 +20,8 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
 import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PowerMockIgnore;
 import org.powermock.core.classloader.annotations.PrepareForTest;
@@ -47,6 +49,7 @@ import com.servicemesh.io.http.IHttpHeader;
 import com.servicemesh.io.http.IHttpRequest;
 import com.servicemesh.io.http.IHttpResponse;
 import com.servicemesh.io.http.QueryParams;
+import com.servicemesh.io.http.impl.BaseHttpHeader;
 import com.servicemesh.io.http.impl.DefaultHttpRequest;
 import com.servicemesh.io.http.impl.DefaultHttpResponse;
 import com.servicemesh.io.proxy.Host;
@@ -203,12 +206,24 @@ public class TestAWSConnection
         IHttpClient mockClient = mock(IHttpClient.class);
         when(mockFactory.getClient(any(IHttpClientConfig.class)))
              .thenReturn(mockClient);
-        IHttpHeader mockHeader = mock(IHttpHeader.class);
+
         when(mockFactory.createHeader(anyString(), anyString()))
-             .thenReturn(mockHeader);
+            .thenAnswer(new Answer<IHttpHeader>() {
+                    @Override
+                    public IHttpHeader answer(InvocationOnMock invocation) {
+                        Object[] args = invocation.getArguments();
+                        return new BaseHttpHeader((String)args[0],
+                                                  (String)args[1]);
+                    }
+                });
+
+        IHttpRequest request = new DefaultHttpRequest(HttpMethod.GET);
+        when(mockFactory.createRequest(any(HttpMethod.class), any(URI.class)))
+            .thenReturn(request);
 
         when(ep.getAddress()).thenReturn("address");
         when(ep.getVersion()).thenReturn("2015-07-13");
+        when(ep.getHostName()).thenReturn("test.com");
         conn = construct("Good conn no proxy", settings, cred, proxy, ep, true);
 
         Host host = new Host("bar.com", 153);

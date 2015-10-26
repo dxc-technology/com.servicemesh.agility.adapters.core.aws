@@ -182,7 +182,7 @@ public class AWSEndpointImpl implements AWSEndpoint
      *            One of the JAXB classes for the AWS API. Used to initialize the default context for the endpoint.
      */
     public <T> AWSEndpointImpl(String uriScheme, String hostName, String serviceName, String regionName, String version,
-            int urlExpireSecs, Class<T> contextClass)
+                               int urlExpireSecs, Class<T> contextClass)
     {
         if (! AWSUtil.isValued(uriScheme)) {
             throw new AWSAdapterException(Resources.getString("emptyUriScheme"));
@@ -225,8 +225,9 @@ public class AWSEndpointImpl implements AWSEndpoint
         return hostName;
     }
 
-    private <T> void init(String address, String hostName, String serviceName, String regionName, String version,
-            int urlExpireSecs, Class<T> contextClass)
+    private <T> void init(String address, String hostName, String serviceName,
+                          String regionName, String version,
+                          int urlExpireSecs, Class<T> contextClass)
     {
         _address = address;
         _hostName = hostName;

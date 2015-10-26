@@ -85,7 +85,7 @@ public class AWSEndpointFactory
      *            The AWS region name, e.g. "us-east-1"
      * @param version
      *            The API version, e.g. "2012-06-01"
-     * @param urlExpireSecs
+      * @param urlExpireSecs
      *            The expiration time in seconds for a signed URL. Defaults to
      *            AWSEndpoint.DEFAULT_URL_EXPIRE_SECS if urlExpireSecs <= 0,
      *            is defAWSEndpoint
@@ -93,10 +93,13 @@ public class AWSEndpointFactory
      *            One of the JAXB classes for the AWS API. Used to initialize the default context for the endpoint.
      * @return An AWS endpoint.
      */
-    public <T> AWSEndpoint getEndpoint(String uriScheme, String hostName, String serviceName, String regionName, String version,
-            int urlExpireSecs, Class<T> contextClass) throws Exception
+    public <T> AWSEndpoint getEndpoint(String uriScheme, String hostName,
+                                       String serviceName, String regionName,
+                                       String version, int urlExpireSecs, 
+                                       Class<T> contextClass) throws Exception
     {
-        return new AWSEndpointImpl(uriScheme, hostName, serviceName, regionName, version, urlExpireSecs, contextClass);
+        return new AWSEndpointImpl(uriScheme, hostName, serviceName, regionName, version,
+                                   urlExpireSecs, contextClass);
     }
 
     /**
