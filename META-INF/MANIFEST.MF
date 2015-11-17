@@ -7,6 +7,8 @@ Bundle-Vendor: CSC Agility Dev
 Bundle-Category: adapter:core
 Import-Package: com.servicemesh.agility.api;version="3.1.0",
  com.servicemesh.core.async,
+ com.servicemesh.core.messaging;version="1.0.0",
+ com.servicemesh.core.reactor;version="1.0.0",
  com.servicemesh.agility.distributed.sync,
  com.servicemesh.io.http,
  com.servicemesh.io.proxy,
