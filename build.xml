@@ -220,6 +220,7 @@
             <path refid="test.classpath"/>
             <fileset dir="${test.bin}" includes="**/*.jar"/>           
          </classpath>
+	 <jvmarg value="-noverify"/>
          <formatter type="xml"/>
          <sysproperty key="net.sourceforge.cobertura.datafile"
                       value="${coverage.datafile}"/>
