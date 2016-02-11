@@ -6,7 +6,7 @@
         Definitions
         ================================================================= -->
 
-   <property name="common.basedir" value="${basedir}/../agility-platform-sdk"/>
+   <property name="common.basedir" value="${basedir}/../csc-agility-platform-sdk"/>
    <property name="common.ivy.lib" value="${common.basedir}/ivy-lib"/>
    <property name="common.dist" value="${common.basedir}/dist"/>
    <property name="common.lib" value="${common.basedir}/lib"/>
@@ -297,7 +297,7 @@
         version="true"
         use="true"
         Public="true"
-        windowtitle="Agility Platform Adapter Core Amazon Web Services">
+        windowtitle="CSC Agility Platform Adapter Core Amazon Web Services">
 
       <classpath>
         <pathelement path="${bin}/com"/>
@@ -309,7 +309,7 @@
         <exclude name="**/impl/**"/>
       </fileset>
 
-      <doctitle><![CDATA[<h1>Agility Platform Adapter Core Amazon Web Services</h1>]]></doctitle>
+      <doctitle><![CDATA[<h1>CSC Agility Platform Adapter Core Amazon Web Services</h1>]]></doctitle>
       <bottom><![CDATA[<i>Copyright &#169; 2013-Present Computer Sciences Corporation</i>]]></bottom>
       <link offline="true"
             href="http://docs.oracle.com/javase/8/docs/api"

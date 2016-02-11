@@ -1,6 +1,6 @@
 # com.servicemesh.agility.adapters.core.aws
 
-The com.servicemesh.agility.adapters.core.aws bundle is provided to aid in the development of an Agility Platform&trade; adapter for Amazon Web Services&trade; (AWS). This bundle provides communications and utility functions for interacting with AWS via Query Requests.
+The com.servicemesh.agility.adapters.core.aws bundle is provided to aid in the development of a CSC Agility Platform&trade; adapter for Amazon Web Services&trade; (AWS). This bundle provides communications and utility functions for interacting with AWS via Query Requests.
 
 ## core.aws Usage
 The primary interfaces in core.aws for communications are:
@@ -22,12 +22,12 @@ To only enable the *DEBUG* level, use *DEBUG* instead of *TRACE* in `com.service
 ### Build/Eclipse Configuration
 core.aws is compatible with Java 8 and ant 1.9.3.
 
-core.aws is dependent on the [agility-platform-sdk project](https://github.com/csc/agility-platform-sdk). The core.aws ant build file requires that agility-platform-sdk be built first.
+core.aws is dependent on the [csc-agility-platform-sdk project](https://github.com/csc/csc-agility-platform-sdk). The core.aws ant build file requires that csc-agility-platform-sdk be built first.
 
 If you want to edit core.aws using Eclipse you'll need to define Eclipse build path variables:
-* IVY-LIB: Contains the path to the *ivy-lib* directory under agility-platform-sdk
-* COMMON-LIB: Contains the path to the *lib* directory under agility-platform-sdk
-* DIST: Contains the path to the *dist* directory under agility-platform-sdk
+* IVY-LIB: Contains the path to the *ivy-lib* directory under csc-agility-platform-sdk
+* COMMON-LIB: Contains the path to the *lib* directory under csc-agility-platform-sdk
+* DIST: Contains the path to the *dist* directory under csc-agility-platform-sdk
 
 ### Reference Implementations
 Examples of utilizing the core.aws bundle with various AWS APIs are provided with the unit tests:
