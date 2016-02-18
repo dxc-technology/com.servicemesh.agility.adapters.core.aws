@@ -155,4 +155,90 @@ public class ObjectFactory {
     public Parameter createParameter() {
         return new Parameter();
     }
+
+    public CreateDBInstanceResponse createCreateDBInstanceResponse() {
+        return new CreateDBInstanceResponse();
+    }
+    public CreateDBInstance createCreateDBInstance() {
+        return new CreateDBInstance();
+    }
+    public DeleteDBInstanceResult createDeleteDBInstanceResult() {
+        return new DeleteDBInstanceResult();
+    }
+    public DeleteDBInstanceResponse createDeleteDBInstanceResponse() {
+        return new DeleteDBInstanceResponse();
+    }
+    public DeleteDBInstance createDeleteDBInstance() {
+        return new DeleteDBInstance();
+    }
+    public CreateDBInstanceResult createCreateDBInstanceResult() {
+        return new CreateDBInstanceResult();
+    }
+    public DBInstanceStatusInfoList createDBInstanceStatusInfoList() {
+        return new DBInstanceStatusInfoList();
+    }
+    public DBInstanceStatusInfo createDBInstanceStatusInfo() {
+        return new DBInstanceStatusInfo();
+    }
+    public DBInstanceList createDBInstanceList() {
+        return new DBInstanceList();
+    }
+    public DBInstance createDBInstance() {
+        return new DBInstance();
+    }
+    public DBSecurityGroupNameList createDBSecurityGroupNameList() {
+        return new DBSecurityGroupNameList();
+    }
+    public DBSubnetGroup createDBSubnetGroup() {
+        return new DBSubnetGroup();
+    }
+    public Endpoint createEndpoint() {
+        return new Endpoint();
+    }
+    public OptionGroupMembership createOptionGroupMembership() {
+        return new OptionGroupMembership();
+    }
+    public OptionGroupMembershipList createOptionGroupMembershipList() {
+        return new OptionGroupMembershipList();
+    }
+    public Subnet createSubnet() {
+        return new Subnet();
+    }
+    public SubnetList createSubnetList() {
+        return new SubnetList();
+    }
+    public Tag createTag() {
+        return new Tag();
+    }
+    public TagList createTagList() {
+        return new TagList();
+    }
+
+    public AvailabilityZone createAvailabilityZone() {
+        return new AvailabilityZone();
+    }
+    public DBParameterGroupStatus createDBParameterGroupStatus() {
+        return new DBParameterGroupStatus();
+    }
+    public DBParameterGroupStatusList createDBParameterGroupStatusList() {
+        return new DBParameterGroupStatusList();
+    }
+    public DBSecurityGroupMembership createDBSecurityGroupMembership() {
+        return new DBSecurityGroupMembership();
+    }
+    public DBSecurityGroupMembershipList createDBSecurityGroupMembershipList() {
+        return new DBSecurityGroupMembershipList();
+    }
+    public ReadReplicaDBInstanceIdentifierList createReadReplicaDBInstanceIdentifierList() {
+        return new ReadReplicaDBInstanceIdentifierList();
+    }
+    public VpcSecurityGroupIdList createVpcSecurityGroupIdList() {
+        return new VpcSecurityGroupIdList();
+    }
+    public VpcSecurityGroupMembership createVpcSecurityGroupMembership() {
+        return new VpcSecurityGroupMembership();
+    }
+    public VpcSecurityGroupMembershipList createVpcSecurityGroupMembershipList() {
+        return new VpcSecurityGroupMembershipList();
+    }
 }

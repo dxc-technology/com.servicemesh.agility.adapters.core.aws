@@ -12,6 +12,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import org.apache.log4j.Level;
+import org.apache.log4j.Logger;
 
 import com.servicemesh.agility.api.Credential;
 import com.servicemesh.agility.api.Property;
@@ -22,9 +23,12 @@ import com.servicemesh.io.http.QueryParam;
 import com.servicemesh.io.http.QueryParams;
 import com.servicemesh.io.proxy.Proxy;
 
+import com.amazonaws.rds.doc._2010_07_28.CreateDBInstanceResponse;
+import com.amazonaws.rds.doc._2010_07_28.CreateDBInstanceResult;
 import com.amazonaws.rds.doc._2010_07_28.CreateDBParameterGroup;
 import com.amazonaws.rds.doc._2010_07_28.CreateDBParameterGroupResponse;
 import com.amazonaws.rds.doc._2010_07_28.CreateDBParameterGroupResult;
+import com.amazonaws.rds.doc._2010_07_28.DBInstance;
 import com.amazonaws.rds.doc._2010_07_28.DBParameterGroup;
 import com.amazonaws.rds.doc._2010_07_28.DescribeDBParametersResponse;
 import com.amazonaws.rds.doc._2010_07_28.DescribeDBParametersResult;
@@ -37,8 +41,13 @@ import com.amazonaws.rds.doc._2010_07_28.ResponseMetadata;
 /** AWS Relational Database Service integration tests */
 public class TestRDSIntegration
 {
+    private static final Logger logger = Logger.getLogger(TestRDSIntegration.class);
     private static final String RDS_DBPG_FAMILY = "MySQL5.1";
     private static final String RDS_DBPG_NAME = "SmfyTestAWSIntegration";
+
+    private static final String RDS_DBI_ID = "test-rds-integration";
+    private static final String RDS_DBI_CLASS = "db.m1.small";
+    private static final String RDS_DBI_ENGINE = "mysql";
 
     // Include special characters to test RFC 3986 compliance
     private static final String RDS_DBPG_DESCRIBE =
@@ -71,18 +80,28 @@ public class TestRDSIntegration
         AWSConnection conn = AWSConnectionFactory.getInstance()
             .getConnection(_settings, _cred, _proxy, _endpoint);
 
-        boolean cleanup = true;
+        boolean cleanup = true, cleanupDB = true;
         try {
             createRDS(conn);
             updateRDS(conn);
             retrieveRDS(conn);
             deleteRDS(conn);
             cleanup = false;
+            // Create/Delete cycle takes many minutes to run
+            // createDBInstance(conn);
+            // deleteDBInstance(conn);
+            cleanupDB = false;
         }
         finally {
             if (cleanup) {
                 try {
                     cleanupRDS(conn);
+                }
+                catch (Exception e) {}
+            }
+            if (cleanupDB) {
+                try {
+                    cleanupDBInstance(conn);
                 }
                 catch (Exception e) {}
             }
@@ -180,6 +199,68 @@ public class TestRDSIntegration
         QueryParams params = conn.initQueryParams("DeleteDBParameterGroup");
         params.add(new QueryParam("DBParameterGroupName", RDS_DBPG_NAME));
         Promise<IHttpResponse> promise = conn.execute(HttpMethod.DELETE, params);
+        try {
+            return promise.get();
+        }
+        catch (Throwable t) {
+            return null;
+        }
+    }
+
+    private void createDBInstance(AWSConnection conn) throws Exception
+    {
+        QueryParams params = conn.initQueryParams("CreateDBInstance");
+        params.add(new QueryParam("DBInstanceIdentifier", RDS_DBI_ID));
+        params.add(new QueryParam("DBInstanceClass", RDS_DBI_CLASS));
+        params.add(new QueryParam("Engine", RDS_DBI_ENGINE));
+        params.add(new QueryParam("MasterUsername", "unitTestMaster"));
+        params.add(new QueryParam("MasterUserPassword", "unitTest1234"));
+        params.add(new QueryParam("AllocatedStorage", "5"));
+
+        Promise<CreateDBInstanceResponse> promise =
+            conn.execute(params, CreateDBInstanceResponse.class);
+        CreateDBInstanceResponse cdbiResponse =
+            TestHelpers.completePromise(promise, _endpoint, true);
+        ResponseMetadata rm = cdbiResponse.getResponseMetadata();
+        Assert.assertNotNull(rm);
+        Assert.assertNotNull(rm.getRequestId());
+
+        CreateDBInstanceResult cdbiResult =
+            cdbiResponse.getCreateDBInstanceResult();
+        Assert.assertNotNull(cdbiResult);
+        DBInstance dbInstance = cdbiResult.getDBInstance();
+        Assert.assertNotNull(dbInstance);
+        Assert.assertTrue(RDS_DBI_ID.equalsIgnoreCase(dbInstance.getDBInstanceIdentifier()));
+    }
+
+    private void deleteDBInstance(AWSConnection conn) throws Exception
+    {
+        int status = 0;
+        for (int i = 0 ; i < 20 ; i++) {
+            IHttpResponse response = cleanupDBInstance(conn);
+            Assert.assertNotNull(response);
+            status = response.getStatusCode();
+
+            if (status == 200) {
+                logger.debug("DeleteDBInstance 200");
+                break;
+            }
+            else {
+                String content = response.getContent();
+                logger.debug("DeleteDBInstance " + status + ": " + content);
+                Thread.sleep(30000);
+            }
+        }
+        Assert.assertEquals(200, status);
+    }
+
+    private IHttpResponse cleanupDBInstance(AWSConnection conn) throws Exception
+    {
+        QueryParams params = conn.initQueryParams("DeleteDBInstance");
+        params.add(new QueryParam("DBInstanceIdentifier", RDS_DBI_ID));
+        params.add(new QueryParam("SkipFinalSnaphot", "true"));
+        Promise<IHttpResponse> promise = conn.execute(HttpMethod.DELETE, params);
+
         try {
             return promise.get();
         }
