@@ -120,7 +120,7 @@ public class AWSConnectionImpl implements AWSConnection
         // AWS signature version 4: query string values must be
         // URL-encoded (space=%20). The parameters must be sorted by name.
         QueryParams qp = new QueryParams();
-        qp.setCaseSensitive(false);
+        qp.setCaseSensitive(true);
         qp.setMaintainOrder(false);
         qp.add(new QueryParam("Action", action));
         qp.add(new QueryParam("Version", _endpoint.getVersion()));
