@@ -5,7 +5,7 @@
    <!-- =====================================================================
         Definitions
         ================================================================= -->
-
+<!--
    <property name="common.basedir" value="${basedir}/../csc-agility-platform-sdk"/>
    <property name="common.ivy.lib" value="${common.basedir}/ivy-lib"/>
    <property name="common.dist" value="${common.basedir}/dist"/>
@@ -16,7 +16,7 @@
    <available file="${common.ivy.lib}" type="dir" property="common.present"/>
    <fail unless="common.present"
          message="This project requires a built ${common.basedir}"/>
-
+-->
    <property name="src" value="src"/>
    <property name="bin" value="bin"/>
    <property name="dist" value="dist"/>
@@ -61,42 +61,33 @@
 
    <!-- classpaths -->
    <path id="compile.classpath">
-      <fileset dir="${common.ivy.lib}">
-         <include name="log4j-*.jar"/>
-      </fileset>
-      <fileset dir="${common.dist}">
-         <include name="com.servicemesh.agility.api-*.jar" />
-         <include name="com.servicemesh.core-*.jar"/>
-         <include name="com.servicemesh.io-*.jar"/>
-         <include name="com.servicemesh.agility.distributed.sync-*.jar"/>
-      </fileset>
       <fileset dir="${ivy.lib}">
-         <include name="commons-codec-*.jar"/>
+         <include name="*.jar"/>
       </fileset>
    </path>
 
    <path id="test.compile.classpath">
       <pathelement location="${bin}"/>
       <path refid="compile.classpath"/>
-      <fileset dir="${common.ivy.lib}">
+      <fileset dir="${ivy.lib}">
          <include name="commons-logging-*.jar"/>
          <include name="javassist-*.jar"/>
          <include name="junit-*.jar"/>
          <include name="mockito-all-*.jar"/>
       </fileset>
-      <fileset dir="${common.lib}">
+      <fileset dir="${ivy.lib}">
          <include name="powermock-mockito-*.jar"/>
       </fileset>
    </path>
 
    <path id="cobertura.classpath">
-      <fileset dir="${common.lib}">
+      <fileset dir="${ivy.lib}">
          <include name="cobertura*.jar"/>
       </fileset>
-      <fileset dir="${common.ivy.lib}">
+      <fileset dir="${ivy.lib}">
          <include name="asm-5*.jar"/>
          <include name="asm-analysis*.jar"/>
-         <include name="asm-commons*.jar"/>
+         <include name="asm-commons*.jar"/>	
          <include name="asm-tree*.jar"/>
          <include name="asm-util*.jar"/>
          <include name="commons-lang3-*.jar"/>
@@ -112,11 +103,11 @@
       <path refid="cobertura.classpath"/>
       <path refid="test.compile.classpath"/>
       <pathelement location="${test.bin}"/>
-      <fileset dir="${common.ivy.lib}">
+      <fileset dir="${ivy.lib}">
          <include name="guava-*.jar"/>
          <include name="zookeeper-*.jar"/>
       </fileset>
-      <fileset dir="${common.io.lib}">
+      <fileset dir="${ivy.lib}">
          <include name="httpasyncclient-*.jar"/>
          <include name="httpclient-*.jar"/>
          <include name="httpcore-*.jar"/>
@@ -124,7 +115,7 @@
    </path>
 
    <path id="groovy.classpath">
-      <fileset dir="${common.ivy.lib}">
+      <fileset dir="${ivy.lib}">
          <include name="groovy-all-*.jar"/>
       </fileset>
    </path>
