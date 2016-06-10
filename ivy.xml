@@ -1,42 +1,5 @@
 <ivy-module version="2.0" xmlns:e="http://ant.apache.org/ivy/extra">
   <info organisation="com.servicemesh" module="${ant.project.name}" />
-
-<configurations>
-	<conf name="default" visibility="public"
-	    description="Runtime dependencies and master artifact can be used with this conf."
-	    extends="runtime,master"/>
-
-	<conf name="master" visibility="public"
-	    description="Contains only artifact published by this module itself, with no transitive dependencies."/>
-
-	<conf name="compile" visibility="public"
-	    description="The default scope. Used if none specified. Compile deps. are available in all classpaths"/>
-
-	<conf name="provided" visibility="public"
-	    description="Like compile, but indicates you expect the environment to provide it. Required for compilation, and isn't transitive."/>
-
-	<conf name="runtime" visibility="public"
-	    description="Not required for compilation, but is required for execution."
-	    extends="compile"/>
-
-	<conf name="test" visibility="private"
-	    description="Not required for normal use, but is available for test compilation and execution"
-	    extends="runtime"/>
-
-	<conf name="system" visibility="public"
-	    description="Like 'provided'. However, it isn't even looked up in the repository."/>
-
-	<conf name="sources" visibility="public"
-	    description="This configuration contains the source artifacts."/>
-
-	<conf name="javadoc" visibility="public"
-	    description="This configuration contains the published javadocs"/>
-
-	<conf name="optional" visibility="public"
-	    description="Contains all optional dependencies"/>
-
-</configurations>
-	   
   <dependencies>
     <dependency org="commons-codec" name="commons-codec" rev="1.4">
       <artifact name="commons-codec" type="jar" ext="jar" />
@@ -44,8 +7,8 @@
     <dependency org="com.servicemesh.agility-platform-sdk" name="httpasyncclient" rev="4.1">
       <artifact name="httpasyncclient" type="jar" ext="jar" />
     </dependency>
-    <dependency org="org.apache.httpcomponents" name="httpclient" rev="4.4.1" conf="compile->default">
-      <exclude org="org.apache.httpcomponents" module="httpcore" name="*" type="*" ext="*" conf="compile->default" matcher="exact"/>
+    <dependency org="org.apache.httpcomponents" name="httpclient" rev="4.4.1" >
+      <exclude org="org.apache.httpcomponents" module="httpcore" name="*" type="*" ext="*"  matcher="exact"/>
     </dependency>
     <dependency org="com.servicemesh.agility-platform-sdk" name="httpcore" rev="4.4.1">
       <artifact name="httpcore" type="jar" ext="jar" />
@@ -58,13 +21,13 @@
 	<dependency org="log4j" name="log4j" rev="1.2.17" />		
 	<dependency org="org.slf4j" name="slf4j-log4j12" rev="1.7.5"/>
 	<!-- common.dist -->
-	<dependency org="com.servicemesh" name="agility.api" rev="3.1.0" conf="compile->default"/>		
-	<dependency org="com.servicemesh" name="agility.platform-sdk" rev="3.1.0"  force="true" conf="compile->default">
+	<dependency org="com.servicemesh" name="agility.api" rev="3.1.0" />		
+	<dependency org="com.servicemesh" name="agility.platform-sdk" rev="3.1.0"  force="true" >
 		<artifact name="agility.platform-sdk" type="pom" ext="pom"/>	
 	</dependency>		
-	<dependency org="com.servicemesh" name="core" rev="1.0.0"  force="true" conf="compile->default"/>		
-	<dependency org="com.servicemesh" name="io" rev="1.0.0"  force="true" conf="compile->default"/>		
-	<dependency org="com.servicemesh" name="agility.distributed.sync" rev="1.0.0" force="true" conf="compile->default"/>		
+	<dependency org="com.servicemesh" name="core" rev="1.0.0"  force="true" />		
+	<dependency org="com.servicemesh" name="io" rev="1.0.0"  force="true" />		
+	<dependency org="com.servicemesh" name="agility.distributed.sync" rev="1.0.0" force="true" />		
 	
 	<!-- common.lib -->
 	<dependency org="net.sourceforge.cobertura" name="cobertura" rev="2.1.1"/>
