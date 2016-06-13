@@ -20,14 +20,9 @@ log4j.logger.com.servicemesh.agility.adapters.core.aws=TRACE
 To only enable the *DEBUG* level, use *DEBUG* instead of *TRACE* in `com.servicemesh.agility.logging.cfg`.
 
 ### Build/Eclipse Configuration
-core.aws is compatible with Java 8 and ant 1.9.3.
+core.aws is compatible with Java 8 and ant 1.9.3 and requires Ivy as well.
 
-core.aws is dependent on the [csc-agility-platform-sdk project](https://github.com/csc/csc-agility-platform-sdk). The core.aws ant build file requires that csc-agility-platform-sdk be built first.
-
-If you want to edit core.aws using Eclipse you'll need to define Eclipse build path variables:
-* IVY-LIB: Contains the path to the *ivy-lib* directory under csc-agility-platform-sdk
-* COMMON-LIB: Contains the path to the *lib* directory under csc-agility-platform-sdk
-* DIST: Contains the path to the *dist* directory under csc-agility-platform-sdk
+To build the project run "ant clean deploy"
 
 ### Reference Implementations
 Examples of utilizing the core.aws bundle with various AWS APIs are provided with the unit tests:
