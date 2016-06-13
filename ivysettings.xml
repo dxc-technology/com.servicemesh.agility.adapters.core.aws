@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ivy-settings>
-  <property name="powermock-mockito.version" value="1.6.4"/>
   <settings defaultResolver="ivy" />
   <resolvers>
     <url name="maven-central" m2compatible="true" >
@@ -11,7 +10,6 @@
         <artifact pattern="https://dl.bintray.com/csc/opensource/[organization]/[module]/[revision]/[artifact]-[revision]([tag]).[ext]" />
         <ivy pattern="https://dl.bintray.com/csc/opensource/[organization]/[module]/[revision]/[module]-[revision].[ext]" />
     </url>
-
     <chain name="ivy" returnFirst="true">
         <resolver ref="maven-central" />
         <resolver ref="csc-opensrc" />
@@ -21,4 +19,5 @@
     <chain name="release" returnFirst="true">
     </chain>
   </resolvers>
+  
 </ivy-settings>
