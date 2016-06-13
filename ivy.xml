@@ -1,5 +1,11 @@
 <ivy-module version="2.0" xmlns:e="http://ant.apache.org/ivy/extra">
   <info organisation="com.servicemesh" module="${ant.project.name}" />
+  <publications>
+    <artifact name="${bundle.name}.r${git.summary}" type="jar" ext="jar"/>
+    <artifact name="${bundle.name}.r${git.summary}-doc" type="doc" ext="jar"/>
+    <artifact name="${rpm.basename}-${rpm.version}.r${git.summary}.${rpm.arch}"
+              type="rpm" ext="rpm"/>
+  </publications>
   <dependencies>
     <dependency org="commons-codec" name="commons-codec" rev="1.4">
       <artifact name="commons-codec" type="jar" ext="jar" />
