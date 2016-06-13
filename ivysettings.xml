@@ -2,6 +2,14 @@
 <ivy-settings>
   <settings defaultResolver="ivy" />
   <resolvers>
+     <filesystem name="local-cache">
+        <artifact pattern="${ivy.default.ivy.user.dir}/cache/[organisation]/[module]/[type]s/[artifact]-[revision].[ext]" />
+        <ivy pattern="${ivy.default.ivy.user.dir}/cache/[organisation]/[module]/ivy-[revision].xml" />
+     </filesystem>
+     <filesystem name="local-csc" latest="latest-time">
+        <artifact pattern="${ivy.default.ivy.user.dir}/local-servicemesh/[organization]/[module]/[revision]/[module]-[revision].[ext]" />
+        <ivy pattern="${ivy.default.ivy.user.dir}/local-servicemesh/[organization]/[module]/[revision]/ivy-[revision].xml" />
+     </filesystem>
     <url name="maven-central" m2compatible="true" >
         <artifact pattern="http://central.maven.org/maven2/[organization]/[module]/[revision]/[artifact]-[revision]([tag]).[ext]" />
         <ivy pattern="http://central.maven.org/maven2/[organization]/[module]/[revision]/[module]-[revision].[ext]" />
@@ -11,8 +19,14 @@
         <ivy pattern="https://dl.bintray.com/csc/opensource/[organization]/[module]/[revision]/[module]-[revision].[ext]" />
     </url>
     <chain name="ivy" returnFirst="true">
+        <resolver ref="local-csc"/>
         <resolver ref="maven-central" />
         <resolver ref="csc-opensrc" />
+    </chain>
+    
+    <chain name="ivy-offline" latest="latest-time">
+       <resolver ref="local-cache" />
+       <resolver ref="local-csc" />
     </chain>
 
     <!-- Used for CI release builds -->
