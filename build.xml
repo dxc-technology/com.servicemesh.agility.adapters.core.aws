@@ -5,18 +5,6 @@
    <!-- =====================================================================
         Definitions
         ================================================================= -->
-<!--
-   <property name="common.basedir" value="${basedir}/../csc-agility-platform-sdk"/>
-   <property name="common.ivy.lib" value="${common.basedir}/ivy-lib"/>
-   <property name="common.dist" value="${common.basedir}/dist"/>
-   <property name="common.lib" value="${common.basedir}/lib"/>
-   <property name="common.io.lib"
-             value="${common.basedir}/com.servicemesh.io/lib"/>
-
-   <available file="${common.ivy.lib}" type="dir" property="common.present"/>
-   <fail unless="common.present"
-         message="This project requires a built ${common.basedir}"/>
--->
    <property name="src" value="src"/>
    <property name="bin" value="bin"/>
    <property name="dist" value="dist"/>
@@ -356,6 +344,38 @@
              failOnError="true" command="${rpm.command}"/>
         <delete file="${specfile}"/>
    </target>
+   
+   <target name="-ivy-resolve-online" depends="git-info" unless="${offline}">
+      <property name="ivy.resolver" value="ivy"/>
+      <ivy:resolve file="ivy.xml"/>
+   </target>
+   
+   <target name="-ivy-resolve-offline" depends="git-info" if="${offline}">
+      <property name="ivy.resolver" value="ivy-offline"/>
+      <ivy:resolve file="ivy.xml"/>
+   </target>
+   
+   <target name="ivy-resolve"
+   depends="-ivy-resolve-online, -ivy-resolve-offline"/>
+   
+   <target name="ivy-publish" depends="ivy-resolve"
+      description="publishes distribution to ivy artifact repository">
+      <copy file="${bin.bundle.jar}"
+      tofile="${dist}/${bundle.name}.r${git.summary}.jar"/>
+      <copy file="${bin.javadoc.jar}"
+      tofile="${dist}/${bundle.name}.r${git.summary}-doc.jar" />
+      <copy todir="dist">
+         <fileset dir="${rpm.rpms}">
+            <include name="*.rpm"/>
+         </fileset>
+      </copy>
+      <ivy:publish module="${ant.project.name}" resolver="local-csc"
+         status="integration" update="true" overwrite="true"
+         pubrevision="${bundle.version}.r${git.summary}"
+         srcivypattern="ivy.xml">
+         <artifacts pattern="${dist}/[artifact].[ext]" />
+      </ivy:publish>
+   </target>
 
    <!-- =====================================================================
         Cleanup
@@ -391,6 +411,7 @@
       <antcall target="deploy"/>
       <antcall target="rpm-build"/>
       <antcall target="javadoc"/>
+      <antcall target="ivy-publish"/>
       <antcall target="coverage-report"/>
    </target>
 

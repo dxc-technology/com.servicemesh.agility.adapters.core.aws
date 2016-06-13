@@ -22,9 +22,6 @@
 	<dependency org="org.slf4j" name="slf4j-log4j12" rev="1.7.5"/>
 	<!-- common.dist -->
 	<dependency org="com.servicemesh" name="agility.api" rev="3.1.0" />		
-	<dependency org="com.servicemesh" name="agility.platform-sdk" rev="3.1.0"  force="true" >
-		<artifact name="agility.platform-sdk" type="pom" ext="pom"/>	
-	</dependency>		
 	<dependency org="com.servicemesh" name="core" rev="1.0.0"  force="true" />		
 	<dependency org="com.servicemesh" name="io" rev="1.0.0"  force="true" />		
 	<dependency org="com.servicemesh" name="agility.distributed.sync" rev="1.0.0" force="true" />		
