@@ -21,7 +21,7 @@ public class AWSConnectionFactory
 {
     private static final String EC2_GENERAL_ENDPOINT = "ec2.amazonaws.com";
     private static final String EC2_DEFAULT_REGION = "us-east-1";
-    private static final String EC2_VERSION = "2013-10-15";
+    private static final String EC2_VERSION = "2015-10-01";
 
     private AWSConnectionFactory()
     {
@@ -63,7 +63,7 @@ public class AWSConnectionFactory
     /**
      * Gets an EC2 AWS Connection that can be used for making EC2 Query Api calls. This connection can be used for
      * {@link EC2SecurityGroupOperations}.
-     * 
+     *
      * @param settings
      *            The configuration settings for the connection. Optional, may be empty or null.
      * @param credential
@@ -80,10 +80,12 @@ public class AWSConnectionFactory
     {
         AWSEndpointFactory endpointFactory = AWSEndpointFactory.getInstance();
         AWSEndpoint endpoint;
-        if (AmazonURI.contains(EC2_GENERAL_ENDPOINT)) {
+        if (AmazonURI.contains(EC2_GENERAL_ENDPOINT))
+        {
             endpoint = endpointFactory.getEndpoint(AmazonURI, EC2_DEFAULT_REGION, EC2_VERSION, IpRangeItemType.class);
         }
-        else { // region should be contained within the address
+        else
+        { // region should be contained within the address
             endpoint = endpointFactory.getEndpoint(AmazonURI, EC2_VERSION, IpRangeItemType.class);
         }
         return new AWSConnectionImpl(settings, credential, proxy, endpoint);

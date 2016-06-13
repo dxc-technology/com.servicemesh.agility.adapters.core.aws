@@ -28,8 +28,8 @@ import org.powermock.core.classloader.annotations.SuppressStaticInitializationFo
 import org.powermock.modules.junit4.PowerMockRunner;
 import org.powermock.reflect.Whitebox;
 
-import com.amazonaws.ec2.doc._2013_10_15.DescribeVpcsResponseType;
-import com.amazonaws.ec2.doc._2013_10_15.VpcSetType;
+import com.amazonaws.ec2.doc._2015_10_01.DescribeVpcsResponseType;
+import com.amazonaws.ec2.doc._2015_10_01.VpcSetType;
 import com.servicemesh.agility.adapters.core.aws.security.group.resources.AuthorizeSecurityGroupEgressResponseType;
 import com.servicemesh.agility.adapters.core.aws.security.group.resources.AuthorizeSecurityGroupIngressResponseType;
 import com.servicemesh.agility.adapters.core.aws.security.group.resources.CreateSecurityGroupResponseType;
@@ -71,7 +71,7 @@ public class TestSecurityGroupIntegration
     private Credential _cred;
     private AWSEndpoint _endpoint;
     private final String EC2_DESCRIBE_VPCS = "DescribeVpcs";
-    private final String EC2_VERSION = "2013-10-15";
+    private final String EC2_VERSION = "2015-10-01";
 
     @Before
     public void before()

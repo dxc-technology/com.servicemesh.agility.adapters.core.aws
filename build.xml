@@ -19,7 +19,7 @@
    <property name="locales" value="locales" />
 
    <property name="version.major" value="1"/>
-   <property name="version.minor" value="1"/>
+   <property name="version.minor" value="2"/>
    <property name="version.build" value="0"/>
    <property name="bundle.version"
              value="${version.major}.${version.minor}.${version.build}"/>

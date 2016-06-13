@@ -7,4 +7,4 @@
 
 @javax.xml.bind.annotation.XmlSchema(namespace = "http://ec2.amazonaws.com/doc/2015-10-01/",
         elementFormDefault = javax.xml.bind.annotation.XmlNsForm.QUALIFIED)
-package com.servicemesh.agility.adapters.core.aws.security.group.resources;
+package com.amazonaws.ec2.doc._2015_10_01;
