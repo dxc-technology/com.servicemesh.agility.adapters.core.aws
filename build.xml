@@ -345,20 +345,7 @@
         <delete file="${specfile}"/>
    </target>
    
-   <target name="-ivy-resolve-online" depends="git-info" unless="${offline}">
-      <property name="ivy.resolver" value="ivy"/>
-      <ivy:resolve file="ivy.xml"/>
-   </target>
-   
-   <target name="-ivy-resolve-offline" depends="git-info" if="${offline}">
-      <property name="ivy.resolver" value="ivy-offline"/>
-      <ivy:resolve file="ivy.xml"/>
-   </target>
-   
-   <target name="ivy-resolve"
-   depends="-ivy-resolve-online, -ivy-resolve-offline"/>
-   
-   <target name="ivy-publish" depends="ivy-resolve"
+   <target name="publish" depends="git-info"
       description="publishes distribution to ivy artifact repository">
       <copy file="${bin.bundle.jar}"
       tofile="${dist}/${bundle.name}.r${git.summary}.jar"/>
@@ -369,12 +356,13 @@
             <include name="*.rpm"/>
          </fileset>
       </copy>
-      <ivy:publish module="${ant.project.name}" resolver="local-csc"
-         status="integration" update="true" overwrite="true"
-         pubrevision="${bundle.version}.r${git.summary}"
-         srcivypattern="ivy.xml">
-         <artifacts pattern="${dist}/[artifact].[ext]" />
-      </ivy:publish>
+      <copy file="ivy.xml"
+      tofile="${dist}/ivy-${bundle.version}.r${git.summary}.xml"/>
+      <exec executable="${basedir}/publishToBintray.sh">
+         <arg value="${bundle.version}.r${git.summary}"/>
+         <arg value="${bintray.user}"/>
+         <arg value="${bintray.key}"/>
+      </exec>
    </target>
 
    <!-- =====================================================================
@@ -411,7 +399,7 @@
       <antcall target="deploy"/>
       <antcall target="rpm-build"/>
       <antcall target="javadoc"/>
-      <antcall target="ivy-publish"/>
+      <antcall target="publish"/>
       <antcall target="coverage-report"/>
    </target>
 
