@@ -336,7 +336,9 @@
           <!-- Agility convention is to only put major.minor as RPM version -->
           <string>--define 'rpm_version ${version.major}.${version.minor}'</string>
           <string>--define 'rpm_revision ${version.build}.r${git.summary}'</string>
-          <string>--buildroot ${basedir}/${buildroot}</string>
+          <string>--define '_binary_filedigest_algorithm  1'</string>
+          <string>--define '_binary_payload 1'</string>
+	  <string>--buildroot ${basedir}/${buildroot}</string>
         </resources>
         <pathconvert property="rpm.command" refid="rpm.args"
                      pathsep=" "/>
