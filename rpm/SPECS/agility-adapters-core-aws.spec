@@ -6,9 +6,9 @@ Release: %rpm_revision
 Vendor: CSC Agility Dev
 URL: http://www.csc.com/
 Group: Services/Cloud
-License: Commercial
+License: Apache-2.0
 BuildArch: noarch
-Requires: jre >= 1.7.0
+Requires: jre >= 1.8.0
 Requires: agility-platform-common
 
 # Sections
