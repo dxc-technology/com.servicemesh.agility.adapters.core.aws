@@ -22,10 +22,18 @@ public class AWSConfig
 
     public static final String SOCKET_TIMEOUT = "AgilityManager.aws.SocketTimeoutMillis";
 
+    
+    public static final String SERVER_BUSY_RETRIES = "AgilityManager.EC2.ServerBusyRetries";
+    
+    public static final String SERVER_BUSY_RETRIES_INTERVAL = "AgilityManager.EC2.ServerBusyRetryInterval";
+    
     public static final int REQUEST_RETRIES_DEFAULT = 2;
     public static final int CONNECTION_TIMEOUT_DEFAULT_SECS = 240;
     public static final int SOCKET_TIMEOUT_DEFAULT_SECS = 20;
 
+    public static final int SERVER_BUSY_RETRIES_DEFAULT = 3;
+    public static final int SERVER_BUSY_RETRIES_INTERVAL_DEFAULT = 20;
+    
     public static final String AWS_ACCESS_KEY = "access-key";
     public static final String AWS_SECRET_KEY = "secret-key";
 
@@ -64,7 +72,32 @@ public class AWSConfig
     {
         return getPropertyAsInteger(AWSConfig.SOCKET_TIMEOUT, settings, AWSConfig.SOCKET_TIMEOUT_DEFAULT_SECS * 1000);
     }
-
+    
+    /**
+     * Returns the number of retries when server sends busy condition.
+     *
+     * @param settings
+     *            Configuration data - if empty or null a default value is returned.
+     * @return The server busy retries value.
+     */
+    public static int getServerBusyRetries(List<Property> settings)
+    {
+        return getPropertyAsInteger(AWSConfig.SERVER_BUSY_RETRIES, settings, AWSConfig.SERVER_BUSY_RETRIES_DEFAULT * 1000);
+    }
+    
+    /**
+     * Returns the number of milliseconds to wait for a server busy results.
+     *
+     * @param settings
+     *            Configuration data - if empty or null a default value is returned.
+     * @return The server busy retry interval value.
+     */
+    public static long getServerBusyRetryInterval(List<Property> settings)
+    {
+        return getPropertyAsInteger(AWSConfig.SERVER_BUSY_RETRIES_INTERVAL, settings,
+                                    AWSConfig.SERVER_BUSY_RETRIES_DEFAULT * 1000);
+    }
+    
     /**
      * Returns the requested property as an integer value.
      *
@@ -79,9 +112,12 @@ public class AWSConfig
     public static int getPropertyAsInteger(String name, List<Property> properties, int defaultValue)
     {
         int value = defaultValue;
-        if (properties != null) {
-            for (Property property : properties) {
-                if (property.getName().equals(name)) {
+        if (properties != null)
+        {
+            for (Property property : properties)
+            {
+                if (property.getName().equals(name))
+                {
                     value = Integer.parseInt(property.getValue());
                     break;
                 }
@@ -101,10 +137,12 @@ public class AWSConfig
     {
         Credential cred = null;
         String accessKey = AWSConfig.getAssetPropertyAsString(AWS_ACCESS_KEY, properties);
-
-        if ((accessKey != null) && (!accessKey.isEmpty())) {
+        
+        if ((accessKey != null) && (!accessKey.isEmpty()))
+        {
             String secretKey = AWSConfig.getAssetPropertyAsString(AWS_SECRET_KEY, properties);
-            if ((secretKey != null) && (!secretKey.isEmpty())) {
+            if ((secretKey != null) && (!secretKey.isEmpty()))
+            {
                 cred = new Credential();
                 cred.setPublicKey(accessKey);
                 cred.setPrivateKey(secretKey);
@@ -140,9 +178,12 @@ public class AWSConfig
     public static AssetProperty getAssetProperty(String name, List<AssetProperty> properties)
     {
         AssetProperty property = null;
-        if (properties != null) {
-            for (AssetProperty ap : properties) {
-                if (ap.getName().equals(name)) {
+        if (properties != null)
+        {
+            for (AssetProperty ap : properties)
+            {
+                if (ap.getName().equals(name))
+                {
                     property = ap;
                     break;
                 }
