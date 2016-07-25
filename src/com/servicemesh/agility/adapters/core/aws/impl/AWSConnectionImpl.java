@@ -53,7 +53,8 @@ public class AWSConnectionImpl implements AWSConnection
     // Using the AWS Signature Version 4 signing process
     private static final SimpleDateFormat SIGNING_DATE_FMT = new SimpleDateFormat("yyyyMMdd");
     private static final SimpleDateFormat AWS_DATE_FMT = new SimpleDateFormat("yyyyMMdd'T'HHmmss'Z'");
-    static {
+    static
+    {
         SIGNING_DATE_FMT.setTimeZone(TimeZone.getTimeZone("GMT"));
         AWS_DATE_FMT.setTimeZone(TimeZone.getTimeZone("GMT"));
     }
@@ -84,12 +85,14 @@ public class AWSConnectionImpl implements AWSConnection
 
     private void init(Credential cred, List<Property> settings, Proxy proxy, AWSEndpoint endpoint) throws Exception
     {
-        if ((cred == null) || (!AWSUtil.isValued(cred.getPublicKey())) || (!AWSUtil.isValued(cred.getPrivateKey()))) {
+        if ((cred == null) || (!AWSUtil.isValued(cred.getPublicKey())) || (!AWSUtil.isValued(cred.getPrivateKey())))
+        {
             throw new AWSAdapterException(Resources.getString("missingCredential"));
         }
         _cred = cred;
 
-        if ((endpoint == null) || (!AWSUtil.isValued(endpoint.getVersion()))) {
+        if ((endpoint == null) || (!AWSUtil.isValued(endpoint.getVersion())))
+        {
             throw new AWSAdapterException(Resources.getString("missingEndpoint"));
         }
         _endpoint = endpoint;
@@ -98,7 +101,10 @@ public class AWSConnectionImpl implements AWSConnection
         cb.setConnectionTimeout(AWSConfig.getConnectionTimeout(settings));
         cb.setRetries(AWSConfig.getRequestRetries(settings));
         cb.setSocketTimeout(AWSConfig.getSocketTimeout(settings));
-        if (proxy != null) {
+        cb.setServerBusyRetries(AWSConfig.getServerBusyRetries(settings));
+        cb.setServerBusyRetryInterval(AWSConfig.getServerBusyRetryInterval(settings));
+        if (proxy != null)
+        {
             cb.setProxy(proxy);
         }
         _httpClient = HttpClientFactory.getInstance().getClient(cb.build());
@@ -128,8 +134,8 @@ public class AWSConnectionImpl implements AWSConnection
     }
 
     // Implements the bulk of the AWS signature version 4 signing process.
-    private Map<String, String> completeQueryParams(Map<String, String> headers, QueryParams params, HttpMethod method, String requestURI,
-            Object content) throws Exception
+    private Map<String, String> completeQueryParams(Map<String, String> headers, QueryParams params, HttpMethod method,
+            String requestURI, Object content) throws Exception
     {
         // Completed AWS signature version 4 example:
         // GET https://iam.amazonaws.com/?Action=ListUsers&Version=2010-05-08&
@@ -152,34 +158,46 @@ public class AWSConnectionImpl implements AWSConnection
         signedHeadersMap.put("x-amz-date", awsDate);
 
         String contentHash = null;
-        if (content != null) {
+        if (content != null)
+        {
             if (content instanceof String)
-                contentHash = getHash((String)content);
+            {
+                contentHash = getHash((String) content);
+            }
             else if (content instanceof byte[])
-                contentHash = getHashFromBytes((byte[])content);
+            {
+                contentHash = getHashFromBytes((byte[]) content);
+            }
 
             signedHeadersMap.put("x-amz-content-sha256", contentHash);
         }
-        else {
+        else
+        {
             contentHash = getHash("");
         }
         allHeaders.putAll(signedHeadersMap);
-        
-        if (headers != null) {
+
+        if (headers != null)
+        {
             allHeaders.putAll(headers);
-            for (Map.Entry<String, String> entry : headers.entrySet()) {
+            for (Map.Entry<String, String> entry : headers.entrySet())
+            {
                 String key = entry.getKey().toLowerCase();
                 if (key.startsWith("x-amz"))
+                {
                     signedHeadersMap.put(key, entry.getValue());
+                }
             }
         }
         StringBuilder canonicalHeaders = new StringBuilder();
         StringBuilder signedHeaders = new StringBuilder();
 
-        for (Map.Entry<String, String> entry : signedHeadersMap.entrySet()) {
+        for (Map.Entry<String, String> entry : signedHeadersMap.entrySet())
+        {
             String key = entry.getKey();
             canonicalHeaders.append(key).append(":").append(entry.getValue()).append("\n");
-            if (signedHeaders.length() > 0) {
+            if (signedHeaders.length() > 0)
+            {
                 signedHeaders.append(";");
             }
             signedHeaders.append(key);
@@ -205,28 +223,39 @@ public class AWSConnectionImpl implements AWSConnection
         //    necessary.
         String canonicalQueryString = params.asQueryString().substring(1);
         if (canonicalQueryString.contains("+"))
+        {
             canonicalQueryString = canonicalQueryString.replace("+", "%20");
+        }
         if (canonicalQueryString.contains("*"))
+        {
             canonicalQueryString = canonicalQueryString.replace("*", "%2A");
+        }
         if (canonicalQueryString.contains("%7E"))
+        {
             canonicalQueryString = canonicalQueryString.replace("%7E", "~");
+        }
 
         if ((requestURI == null || (requestURI.isEmpty())))
+        {
             requestURI = "/";
+        }
 
-        String canonicalRequest =
-                method.getName() + "\n" + requestURI + "\n" + canonicalQueryString + "\n" + canonicalHeaders.toString() + "\n"
-                        + signedHeaders.toString() + "\n" + contentHash;
+        String canonicalRequest = method.getName() + "\n" + requestURI + "\n" + canonicalQueryString + "\n"
+                + canonicalHeaders.toString() + "\n" + signedHeaders.toString() + "\n" + contentHash;
 
         if (_logger.isTraceEnabled())
+        {
             _logger.trace("Canonical String:\n'" + canonicalRequest + "'");
+        }
 
         // Task 2: Create a String to Sign for Signature Version 4
         // http://docs.aws.amazon.com/general/latest/gr/sigv4-create-string-to-sign.html
         String stringToSign = SIGNING_ALGORITHM + "\n" + awsDate + "\n" + credScope + "\n" + getHash(canonicalRequest);
 
         if (_logger.isTraceEnabled())
+        {
             _logger.trace("String-to-Sign:\n'" + stringToSign + "'");
+        }
 
         // Task 3: Calculate the AWS Signature Version 4
         // http://docs.aws.amazon.com/general/latest/gr/sigv4-calculate-signature.html
@@ -238,16 +267,17 @@ public class AWSConnectionImpl implements AWSConnection
         // Task 4: Add the Signing Information to the Request
         // http://docs.aws.amazon.com/general/latest/gr/sigv4-add-signature-to-request.html
         StringBuilder authorization = new StringBuilder();
-        authorization.append(SIGNING_ALGORITHM).append(" Credential=").
-            append(awsCred);
+        authorization.append(SIGNING_ALGORITHM).append(" Credential=").append(awsCred);
 
-        if (signedHeaders.length() > 0) {
-            authorization.append(", SignedHeaders=")
-                .append(signedHeaders.toString());
+        if (signedHeaders.length() > 0)
+        {
+            authorization.append(", SignedHeaders=").append(signedHeaders.toString());
         }
         authorization.append(", Signature=").append(signature);
         if (_logger.isTraceEnabled())
+        {
             _logger.trace("Authorization: " + authorization.toString());
+        }
         allHeaders.put("Authorization", authorization.toString());
         return allHeaders;
     }
@@ -255,37 +285,44 @@ public class AWSConnectionImpl implements AWSConnection
     private String getHash(String value) throws Exception
     {
         if (value == null)
+        {
             value = "";
+        }
         return getHashFromBytes(value.getBytes());
     }
 
     private String getHashFromBytes(byte[] data) throws Exception
     {
-        try {
+        try
+        {
             MessageDigest md = MessageDigest.getInstance(DIGEST_ALGORITHM);
             md.update(data);
             return Hex.encodeHexString(md.digest());
         }
-        catch (Exception e) {
+        catch (Exception e)
+        {
             throw new AWSAdapterException(Resources.getString("failedGetHashFromBytes", e));
         }
     }
 
     private byte[] getHmacSHA(String data, byte[] key) throws Exception
     {
-        try {
+        try
+        {
             Mac mac = Mac.getInstance(MAC_ALGORITHM);
             mac.init(new SecretKeySpec(key, MAC_ALGORITHM));
             return mac.doFinal(data.getBytes(AWSEndpoint.CHAR_SET));
         }
-        catch (Exception e) {
+        catch (Exception e)
+        {
             throw new AWSAdapterException(Resources.getString("failedGetHmacSHA", e));
         }
     }
 
     private byte[] getSignatureKey(String key, String dateStamp, String regionName, String serviceName) throws Exception
     {
-        try {
+        try
+        {
             byte[] kSecret = ("AWS4" + key).getBytes(AWSEndpoint.CHAR_SET);
             byte[] kDate = getHmacSHA(dateStamp, kSecret);
             byte[] kRegion = getHmacSHA(regionName, kDate);
@@ -293,7 +330,8 @@ public class AWSConnectionImpl implements AWSConnection
             byte[] kSigning = getHmacSHA("aws4_request", kService);
             return kSigning;
         }
-        catch (Exception e) {
+        catch (Exception e)
+        {
             throw new AWSAdapterException(Resources.getString("failedGetSignature", e));
         }
     }
@@ -332,58 +370,69 @@ public class AWSConnectionImpl implements AWSConnection
             Object resource, final Class<T> responseClass)
     {
         URI uri = null;
-        try {
-            if (_logger.isTraceEnabled()) {
+        try
+        {
+            if (_logger.isTraceEnabled())
+            {
                 StringBuilder trc = new StringBuilder();
                 trc.append(method.getName()).append(" ").append(_endpoint.getHostName()).append(" ");
 
                 if (requestURI != null)
+                {
                     trc.append(requestURI).append(" ");
+                }
 
                 trc.append(_endpoint.getVersion());
                 _logger.trace(trc.toString());
             }
             boolean isContentEncoded = false;
             Object content = resource;
-            if (content != null) {
-                if ((! (content instanceof java.lang.String)) &&
-                    (! (content instanceof byte[]))) {
+            if (content != null)
+            {
+                if ((!(content instanceof java.lang.String)) && (!(content instanceof byte[])))
+                {
                     content = _endpoint.encode(resource);
                     isContentEncoded = true;
                 }
             }
 
-            Map<String, String> allHeaders =
-                completeQueryParams(headers, params, method, requestURI,
-                                    content);
+            Map<String, String> allHeaders = completeQueryParams(headers, params, method, requestURI, content);
             uri = getURI(requestURI, params);
             IHttpRequest request = HttpClientFactory.getInstance().createRequest(method, uri);
 
-            if (content != null) {
-                if (content instanceof java.lang.String) {
+            if (content != null)
+            {
+                if (content instanceof java.lang.String)
+                {
                     request.setContent((String) content);
                 }
-                else if (content instanceof byte[]) {
+                else if (content instanceof byte[])
+                {
                     request.setContent((byte[]) content);
                 }
-                if (isContentEncoded) {
+                if (isContentEncoded)
+                {
                     addContentTypeHeader(request);
                 }
             }
 
-            for (Map.Entry<String, String> entry : allHeaders.entrySet()) {
+            for (Map.Entry<String, String> entry : allHeaders.entrySet())
+            {
                 addHeader(request, entry.getKey(), entry.getValue());
             }
 
-            if (_logger.isDebugEnabled()) {
+            if (_logger.isDebugEnabled())
+            {
                 _logger.debug(method.getName() + " " + uri);
             }
             Promise<IHttpResponse> promise = _httpClient.promise(request);
 
-            if (responseClass.getCanonicalName().equals(IHttpResponse.class.getCanonicalName())) {
+            if (responseClass.getCanonicalName().equals(IHttpResponse.class.getCanonicalName()))
+            {
                 return (Promise<T>) promise;
             }
-            else {
+            else
+            {
                 return promise.map(new Function<IHttpResponse, T>() {
                     @Override
                     public T invoke(IHttpResponse response)
@@ -393,7 +442,8 @@ public class AWSConnectionImpl implements AWSConnection
                 });
             }
         }
-        catch (Exception e) {
+        catch (Exception e)
+        {
             String err = Resources.getString("executeException", method.getName(), uri, e.toString());
             _logger.error(err, e);
             return Promise.pure(new Exception(err));
@@ -408,13 +458,16 @@ public class AWSConnectionImpl implements AWSConnection
     {
         StringBuilder sb = new StringBuilder(_endpoint.getAddress());
 
-        if (resourceString != null && !resourceString.isEmpty()) {
-            if (resourceString.charAt(0) != '/') {
+        if (resourceString != null && !resourceString.isEmpty())
+        {
+            if (resourceString.charAt(0) != '/')
+            {
                 sb.append("/");
             }
             sb.append(resourceString);
         }
-        if (params != null) {
+        if (params != null)
+        {
             sb.append(params.asQueryString());
         }
         return new URI(sb.toString());
@@ -427,7 +480,8 @@ public class AWSConnectionImpl implements AWSConnection
 
     private void addHeader(IHttpRequest request, String name, String value)
     {
-        if (value != null) {
+        if (value != null)
+        {
             IHttpHeader header = HttpClientFactory.getInstance().createHeader(name, value);
             request.setHeader(header);
         }
