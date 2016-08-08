@@ -1,9 +1,9 @@
-# com.servicemesh.agility.adapters.core.aws
+# Core AWS
 
-The com.servicemesh.agility.adapters.core.aws bundle is provided to aid in the development of a CSC Agility Platform&trade; adapter for Amazon Web Services&trade; (AWS). This bundle provides communications and utility functions for interacting with AWS via Query Requests.
+The Core AWS bundle is provided to aid in the development of a CSC Agility Platform&trade; adapter for Amazon Web Services&trade; (AWS). This bundle provides communications and utility functions for interacting with AWS via Query Requests.
 
-## core.aws Usage
-The primary interfaces in core.aws for communications are:
+## Core AWS Usage
+The primary interfaces in Core AWS for communications are:
 * com.servicemesh.agility.adapters.core.aws.AWSConnection
 * com.servicemesh.agility.adapters.core.aws.AWSEndpoint
 
@@ -13,19 +13,19 @@ The primary interfaces in core.aws for communications are:
 
 com.servicemesh.agility.adapters.core.aws.util.EC2SecurityGroupOperations manages AWS Elastic Compute Cloud&trade; (EC2) Security Groups.
 
-The core.aws bundle uses log4j and has two levels to assist in adapter troubleshooting - *DEBUG* and the finer-grained *TRACE* - that by default are not enabled. To enable both, add the following line to `/opt/agility-platform/etc/com.servicemesh.agility.logging.cfg`:
+The Core AWS bundle uses Apache Log4j and has two levels to assist in adapter troubleshooting - *DEBUG* and the finer-grained *TRACE* - that by default are not enabled. To enable both, add the following line to `/opt/agility-platform/etc/com.servicemesh.agility.logging.cfg`:
 ```
 log4j.logger.com.servicemesh.agility.adapters.core.aws=TRACE
 ```
 To only enable the *DEBUG* level, use *DEBUG* instead of *TRACE* in `com.servicemesh.agility.logging.cfg`.
 
 ### Build/Eclipse Configuration
-core.aws is compatible with Java 8 and ant 1.9.3 and requires Ivy as well.
+Core AWS is compatible with Java 8 and Apache Ant 1.9.3 and requires Apache Ivy as well.
 
 To build the project run "ant clean deploy"
 
 ### Reference Implementations
-Examples of utilizing the core.aws bundle with various AWS APIs are provided with the unit tests:
+Examples of utilizing the Core AWS bundle with various AWS APIs are provided with the unit tests:
 * TestELBIntegration.java: AWS Elastic Load Balancing&trade; (ELB)
 * TestRDSIntegration.java: AWS Relational Database Service&trade; (RDS)
 * TestS3Integration.java: AWS Simple Storage Service&trade; (S3)
@@ -43,5 +43,9 @@ To generate and view code coverage metrics, open the coverage/report/index.html 
 $ ant clean compile coverage-report -Dcoverage.format=html
 ```
 
+## Compiled Artifacts
+Artifacts produced by a CI build of this repo can be found at https://bintray.com/csc/opensource/com.servicemesh.agility.adapters.core.aws
+
+
 ## License
-core.aws is distributed under the Apache 2.0 license. See the [LICENSE](https://github.com/csc/com.servicemesh.agility.adapters.core.aws/blob/master/LICENSE) file for full details.
+Core AWS is distributed under the Apache 2.0 license. See the [LICENSE](https://github.com/csc/com.servicemesh.agility.adapters.core.aws/blob/master/LICENSE) file for full details.
