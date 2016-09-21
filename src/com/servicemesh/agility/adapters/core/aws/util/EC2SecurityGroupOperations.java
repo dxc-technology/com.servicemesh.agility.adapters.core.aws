@@ -32,6 +32,7 @@ import com.servicemesh.agility.distributed.sync.AsyncLock;
 import com.servicemesh.core.async.Callback;
 import com.servicemesh.core.async.Function;
 import com.servicemesh.core.async.Promise;
+import com.servicemesh.io.http.IHttpResponse;
 import com.servicemesh.io.http.QueryParam;
 import com.servicemesh.io.http.QueryParams;
 
@@ -62,7 +63,7 @@ public class EC2SecurityGroupOperations
 
     /**
      * Constructor for EC2SecurityGroupOperations.
-     * 
+     *
      * @param connection
      *            An AWS Connection for EC2. The
      *            {@link AWSConnectionFactory#getSecurityGroupConnection(List, com.servicemesh.agility.api.Credential, com.servicemesh.io.proxy.Proxy, String)}
@@ -75,7 +76,7 @@ public class EC2SecurityGroupOperations
 
     /**
      * Iterates through a list of AccessLists and creates a security group for each one.
-     * 
+     *
      * @see #createSecurityGroup(AccessList, String)
      * @param acls
      *            List of AccessLists to create security groups for.
@@ -85,12 +86,15 @@ public class EC2SecurityGroupOperations
      */
     public Promise<List<CreateSecurityGroupResponseType>> createSecurityGroups(final List<AccessList> acls, String vpcId)
     {
-        if (!AWSUtil.isValued(acls)) {
+        if (!AWSUtil.isValued(acls))
+        {
             return Promise.pure(new AWSAdapterException(Resources.getString("missingAcls")));
         }
         List<Promise<CreateSecurityGroupResponseType>> promises = new ArrayList<Promise<CreateSecurityGroupResponseType>>();
         for (AccessList acl : acls)
+        {
             promises.add(createSecurityGroup(acl, vpcId));
+        }
         return Promise.sequence(promises);
     }
 
@@ -98,7 +102,7 @@ public class EC2SecurityGroupOperations
      * Creates a security group for the given AccessList. If a vpcId is provided then an EC2-VPC security group is created. The
      * name of the security group is set to the name of the AccessList. The description of the security group is set to the
      * description of the AccessList.
-     * 
+     *
      * @see #createSecurityGroup(String, String, String)
      * @param acl
      *            AccessList to create a security group for.
@@ -108,7 +112,8 @@ public class EC2SecurityGroupOperations
      */
     public Promise<CreateSecurityGroupResponseType> createSecurityGroup(AccessList acl, String vpcId)
     {
-        if (!AWSUtil.isValued(acl)) {
+        if (!AWSUtil.isValued(acl))
+        {
             return Promise.pure(new AWSAdapterException(Resources.getString("missingAcl")));
         }
         return createSecurityGroup(acl.getName(), acl.getDescription(), vpcId);
@@ -116,7 +121,7 @@ public class EC2SecurityGroupOperations
 
     /**
      * Creates a security group with the given name. If a vpcId is provided then an EC2-VPC security group is created.
-     * 
+     *
      * @param name
      *            The name of the security group.
      * @param desc
@@ -127,14 +132,17 @@ public class EC2SecurityGroupOperations
      */
     public Promise<CreateSecurityGroupResponseType> createSecurityGroup(String name, String desc, String vpcId)
     {
-        if (!AWSUtil.isValued(name)) {
+        if (!AWSUtil.isValued(name))
+        {
             return Promise.pure(new AWSAdapterException(Resources.getString("missingGroupName")));
         }
         QueryParams params = _connection.initQueryParams(EC2_CREATE_SECURITY_GROUP);
         params.add(new QueryParam("GroupName", name));
         params.add(new QueryParam("GroupDescription", desc != null ? desc : name));
         if (AWSUtil.isValued(vpcId))
+        {
             params.add(new QueryParam("VpcId", vpcId));
+        }
         Promise<CreateSecurityGroupResponseType> result = _connection.execute(params, CreateSecurityGroupResponseType.class);
         return result;
     }
@@ -142,7 +150,7 @@ public class EC2SecurityGroupOperations
     /**
      * Method that calls the authorizeSecurityGroupIngress Query API call. See the amazon docs for more info.
      * https://docs.aws.amazon.com/AWSEC2/latest/APIReference/API_AuthorizeSecurityGroupIngress.html
-     * 
+     *
      * @param groupId
      *            The id of the security group to add the rule to.
      * @param perm
@@ -152,10 +160,12 @@ public class EC2SecurityGroupOperations
     public Promise<AuthorizeSecurityGroupIngressResponseType> authorizeSecurityGroupIngress(final String groupId,
             final IpPermissionType perm)
     {
-        if (!AWSUtil.isValued(groupId)) {
+        if (!AWSUtil.isValued(groupId))
+        {
             return Promise.pure(new AWSAdapterException(Resources.getString("missingGroupId")));
         }
-        if (perm == null) {
+        if (perm == null)
+        {
             return Promise.pure(new AWSAdapterException(Resources.getString("missingPermType")));
         }
         Promise<AsyncLock> lock = AsyncLock.lock("/agility/core/aws/securitygroup/" + groupId + "/lock");
@@ -164,7 +174,8 @@ public class EC2SecurityGroupOperations
             @Override
             public Promise<AuthorizeSecurityGroupIngressResponseType> invoke(final AsyncLock lock)
             {
-                try {
+                try
+                {
                     QueryParams params = _connection.initQueryParams(EC2_AUTHORIZE_SECURITY_GROUP_INGRESS);
                     params.add(new QueryParam("GroupId", groupId));
                     addIngressParams(perm, params);
@@ -200,7 +211,8 @@ public class EC2SecurityGroupOperations
                     });
                     return result;
                 }
-                catch (Throwable t) {
+                catch (Throwable t)
+                {
                     // make sure lock is released if exception is thrown during call
                     lock.unlock();
                     return Promise.pure(t);
@@ -212,7 +224,7 @@ public class EC2SecurityGroupOperations
     /**
      * Method that calls the authorizeSecurityGroupEgress Query API call. See the amazon docs for more info.
      * https://docs.aws.amazon.com/AWSEC2/latest/APIReference/API_AuthorizeSecurityGroupEgress.html
-     * 
+     *
      * @param groupId
      *            The id of the security group to add the rule to.
      * @param perm
@@ -222,10 +234,12 @@ public class EC2SecurityGroupOperations
     public Promise<AuthorizeSecurityGroupEgressResponseType> authorizeSecurityGroupEgress(final String groupId,
             final IpPermissionType perm)
     {
-        if (!AWSUtil.isValued(groupId)) {
+        if (!AWSUtil.isValued(groupId))
+        {
             return Promise.pure(new AWSAdapterException(Resources.getString("missingGroupId")));
         }
-        if (perm == null) {
+        if (perm == null)
+        {
             return Promise.pure(new AWSAdapterException(Resources.getString("missingPermType")));
         }
         Promise<AsyncLock> lock = AsyncLock.lock("/agility/core/aws/securitygroup/" + groupId + "/lock");
@@ -234,7 +248,8 @@ public class EC2SecurityGroupOperations
             @Override
             public Promise<AuthorizeSecurityGroupEgressResponseType> invoke(final AsyncLock lock)
             {
-                try {
+                try
+                {
                     QueryParams params = _connection.initQueryParams(EC2_AUTHORIZE_SECURITY_GROUP_EGRESS);
                     params.add(new QueryParam("GroupId", groupId));
                     addEgressParams(perm, params);
@@ -270,7 +285,8 @@ public class EC2SecurityGroupOperations
                     });
                     return result;
                 }
-                catch (Throwable t) {
+                catch (Throwable t)
+                {
                     // make sure lock is released if exception is thrown during call
                     lock.unlock();
                     return Promise.pure(t);
@@ -282,7 +298,7 @@ public class EC2SecurityGroupOperations
     /**
      * Method that calls the revokeSecurityGroupIngress Query API call. See the amazon docs for more info.
      * https://docs.aws.amazon.com/AWSEC2/latest/APIReference/API_RevokeSecurityGroupIngress.html
-     * 
+     *
      * @param groupId
      *            The id of the security group to add the rule to.
      * @param perm
@@ -292,10 +308,12 @@ public class EC2SecurityGroupOperations
     public Promise<RevokeSecurityGroupIngressResponseType> revokeSecurityGroupIngress(final String groupId,
             final IpPermissionType perm)
     {
-        if (!AWSUtil.isValued(groupId)) {
+        if (!AWSUtil.isValued(groupId))
+        {
             return Promise.pure(new AWSAdapterException(Resources.getString("missingGroupId")));
         }
-        if (perm == null) {
+        if (perm == null)
+        {
             return Promise.pure(new AWSAdapterException(Resources.getString("missingPermType")));
         }
         Promise<AsyncLock> lock = AsyncLock.lock("/agility/core/aws/securitygroup/" + groupId + "/lock");
@@ -304,7 +322,8 @@ public class EC2SecurityGroupOperations
             @Override
             public Promise<RevokeSecurityGroupIngressResponseType> invoke(final AsyncLock lock)
             {
-                try {
+                try
+                {
                     QueryParams params = _connection.initQueryParams(EC2_REVOKE_SECURITY_GROUP_INGRESS);
                     params.add(new QueryParam("GroupId", groupId));
                     addIngressParams(perm, params);
@@ -340,7 +359,8 @@ public class EC2SecurityGroupOperations
                     });
                     return result;
                 }
-                catch (Throwable t) {
+                catch (Throwable t)
+                {
                     // make sure lock is released if exception is thrown during call
                     lock.unlock();
                     return Promise.pure(t);
@@ -352,7 +372,7 @@ public class EC2SecurityGroupOperations
     /**
      * Method that calls the revokeSecurityGroupEgress Query API call. See the amazon docs for more info.
      * https://docs.aws.amazon.com/AWSEC2/latest/APIReference/API_RevokeSecurityGroupEgress.html
-     * 
+     *
      * @param groupId
      *            The id of the security group to add the rule to.
      * @param perm
@@ -362,10 +382,12 @@ public class EC2SecurityGroupOperations
     public Promise<RevokeSecurityGroupEgressResponseType> revokeSecurityGroupEgress(final String groupId,
             final IpPermissionType perm)
     {
-        if (!AWSUtil.isValued(groupId)) {
+        if (!AWSUtil.isValued(groupId))
+        {
             return Promise.pure(new AWSAdapterException(Resources.getString("missingGroupId")));
         }
-        if (perm == null) {
+        if (perm == null)
+        {
             return Promise.pure(new AWSAdapterException(Resources.getString("missingPermType")));
         }
         Promise<AsyncLock> lock = AsyncLock.lock("/agility/core/aws/securitygroup/" + groupId + "/lock");
@@ -374,7 +396,8 @@ public class EC2SecurityGroupOperations
             @Override
             public Promise<RevokeSecurityGroupEgressResponseType> invoke(final AsyncLock lock)
             {
-                try {
+                try
+                {
                     QueryParams params = _connection.initQueryParams(EC2_REVOKE_SECURITY_GROUP_EGRESS);
                     params.add(new QueryParam("GroupId", groupId));
                     addEgressParams(perm, params);
@@ -410,7 +433,8 @@ public class EC2SecurityGroupOperations
                     });
                     return result;
                 }
-                catch (Throwable t) {
+                catch (Throwable t)
+                {
                     // make sure lock is released if exception is thrown during call
                     lock.unlock();
                     return Promise.pure(t);
@@ -425,7 +449,7 @@ public class EC2SecurityGroupOperations
      * Ingress access is updated. Ingress rules apply to both EC2-Classic and EC2-VPC. Any IpPermissions in the existing security
      * group that don't exist in the AccessList's protocols will be revoked. Any protocols in the AccessList that don't already
      * exist for the security group will be created.
-     * 
+     *
      * @param acl
      *            AccessList used to set the IpPermissions.
      * @param item
@@ -434,24 +458,33 @@ public class EC2SecurityGroupOperations
      */
     public Promise<Boolean> updateSecurityGroup(final AccessList acl, final SecurityGroupItemType item)
     {
-        if (!AWSUtil.isValued(acl)) {
+        if (!AWSUtil.isValued(acl))
+        {
             return Promise.pure(new AWSAdapterException(Resources.getString("missingAcl")));
         }
-        if (!AWSUtil.isValued(item)) {
+        if (!AWSUtil.isValued(item))
+        {
             return Promise.pure(new AWSAdapterException(Resources.getString("missingGroup")));
         }
         if (acl.getDirection() == AccessListDirection.OUTPUT)
+        {
             return updateEgress(acl, item);
+        }
         else
+        {
             return updateIngress(acl, item);
+        }
     }
 
     private Promise<Boolean> updateIngress(final AccessList acl, final SecurityGroupItemType item)
     {
         Map<String, IpPermissionType> existing = new HashMap<String, IpPermissionType>();
-        if (item.getIpPermissions() != null) {
-            for (IpPermissionType perm : item.getIpPermissions().getItem()) {
-                for (IpRangeItemType range : perm.getIpRanges().getItem()) {
+        if (item.getIpPermissions() != null)
+        {
+            for (IpPermissionType perm : item.getIpPermissions().getItem())
+            {
+                for (IpRangeItemType range : perm.getIpRanges().getItem())
+                {
                     String key =
                             perm.getIpProtocol() + "-" + perm.getFromPort() + "-" + perm.getToPort() + "-" + range.getCidrIp();
                     existing.put(key, perm);
@@ -460,17 +493,22 @@ public class EC2SecurityGroupOperations
         }
 
         List<Promise<?>> promises = new ArrayList<Promise<?>>();
-        if (AWSUtil.isValued(acl.getProtocols())) {
-            for (Protocol protocol : acl.getProtocols()) {
-                if (protocol.isAllowed()) {
-                    for (String prefix : protocol.getPrefixes()) {
-                        String key =
-                                protocol.getProtocol().toLowerCase() + "-" + protocol.getMinPort() + "-" + protocol.getMaxPort()
-                                        + "-" + prefix;
-                        if (existing.containsKey(key)) {
+        if (AWSUtil.isValued(acl.getProtocols()))
+        {
+            for (Protocol protocol : acl.getProtocols())
+            {
+                if (protocol.isAllowed())
+                {
+                    for (String prefix : protocol.getPrefixes())
+                    {
+                        String key = protocol.getProtocol().toLowerCase() + "-" + protocol.getMinPort() + "-"
+                                + protocol.getMaxPort() + "-" + prefix;
+                        if (existing.containsKey(key))
+                        {
                             existing.remove(key);
                         }
-                        else {
+                        else
+                        {
                             IpPermissionType perm = new IpPermissionType();
                             perm.setFromPort(protocol.getMinPort());
                             perm.setToPort(protocol.getMaxPort());
@@ -488,7 +526,8 @@ public class EC2SecurityGroupOperations
         }
 
         // clean up anything left
-        for (IpPermissionType perm : existing.values()) {
+        for (IpPermissionType perm : existing.values())
+        {
             promises.add(revokeSecurityGroupIngress(item.getGroupId(), perm));
         }
 
@@ -498,16 +537,21 @@ public class EC2SecurityGroupOperations
             @Override
             public Promise<Boolean> invoke(List<Object> response)
             {
-                for (Object o : response) {
-                    if (o instanceof RevokeSecurityGroupIngressResponseType) {
+                for (Object o : response)
+                {
+                    if (o instanceof RevokeSecurityGroupIngressResponseType)
+                    {
                         RevokeSecurityGroupIngressResponseType r = (RevokeSecurityGroupIngressResponseType) o;
-                        if (!r.isReturn()) {
+                        if (!r.isReturn())
+                        {
                             return Promise.pure(false);
                         }
                     }
-                    if (o instanceof AuthorizeSecurityGroupIngressResponseType) {
+                    if (o instanceof AuthorizeSecurityGroupIngressResponseType)
+                    {
                         AuthorizeSecurityGroupIngressResponseType a = (AuthorizeSecurityGroupIngressResponseType) o;
-                        if (!a.isReturn()) {
+                        if (!a.isReturn())
+                        {
                             return Promise.pure(false);
                         }
                     }
@@ -521,10 +565,14 @@ public class EC2SecurityGroupOperations
     private Promise<Boolean> updateEgress(final AccessList acl, final SecurityGroupItemType item)
     {
         Map<String, IpPermissionType> existing = new HashMap<String, IpPermissionType>();
-        if (item.getIpPermissionsEgress() != null) {
-            for (IpPermissionType perm : item.getIpPermissionsEgress().getItem()) {
-                for (IpRangeItemType range : perm.getIpRanges().getItem()) {
-                    if (isDefaultRule(perm, range.getCidrIp())) {
+        if (item.getIpPermissionsEgress() != null)
+        {
+            for (IpPermissionType perm : item.getIpPermissionsEgress().getItem())
+            {
+                for (IpRangeItemType range : perm.getIpRanges().getItem())
+                {
+                    if (isDefaultRule(perm, range.getCidrIp()))
+                    {
                         continue; //don't try to delete the default rule.
                     }
                     String key =
@@ -535,17 +583,22 @@ public class EC2SecurityGroupOperations
         }
 
         List<Promise<?>> promises = new ArrayList<Promise<?>>();
-        if (AWSUtil.isValued(acl.getProtocols())) {
-            for (Protocol protocol : acl.getProtocols()) {
-                if (protocol.isAllowed()) {
-                    for (String prefix : protocol.getPrefixes()) {
-                        String key =
-                                protocol.getProtocol().toLowerCase() + "-" + protocol.getMinPort() + "-" + protocol.getMaxPort()
-                                        + "-" + prefix;
-                        if (existing.containsKey(key)) {
+        if (AWSUtil.isValued(acl.getProtocols()))
+        {
+            for (Protocol protocol : acl.getProtocols())
+            {
+                if (protocol.isAllowed())
+                {
+                    for (String prefix : protocol.getPrefixes())
+                    {
+                        String key = protocol.getProtocol().toLowerCase() + "-" + protocol.getMinPort() + "-"
+                                + protocol.getMaxPort() + "-" + prefix;
+                        if (existing.containsKey(key))
+                        {
                             existing.remove(key);
                         }
-                        else {
+                        else
+                        {
                             IpPermissionType perm = new IpPermissionType();
                             perm.setFromPort(protocol.getMinPort());
                             perm.setToPort(protocol.getMaxPort());
@@ -563,7 +616,8 @@ public class EC2SecurityGroupOperations
         }
 
         // clean up anything left
-        for (IpPermissionType perm : existing.values()) {
+        for (IpPermissionType perm : existing.values())
+        {
             promises.add(revokeSecurityGroupEgress(item.getGroupId(), perm));
         }
 
@@ -573,16 +627,21 @@ public class EC2SecurityGroupOperations
             @Override
             public Promise<Boolean> invoke(List<Object> response)
             {
-                for (Object o : response) {
-                    if (o instanceof RevokeSecurityGroupEgressResponseType) {
+                for (Object o : response)
+                {
+                    if (o instanceof RevokeSecurityGroupEgressResponseType)
+                    {
                         RevokeSecurityGroupEgressResponseType r = (RevokeSecurityGroupEgressResponseType) o;
-                        if (!r.isReturn()) {
+                        if (!r.isReturn())
+                        {
                             return Promise.pure(false);
                         }
                     }
-                    if (o instanceof AuthorizeSecurityGroupEgressResponseType) {
+                    if (o instanceof AuthorizeSecurityGroupEgressResponseType)
+                    {
                         AuthorizeSecurityGroupEgressResponseType a = (AuthorizeSecurityGroupEgressResponseType) o;
-                        if (!a.isReturn()) {
+                        if (!a.isReturn())
+                        {
                             return Promise.pure(false);
                         }
                     }
@@ -595,14 +654,15 @@ public class EC2SecurityGroupOperations
 
     /**
      * Gets the security group for the specified id.
-     * 
+     *
      * @param sg_id
      *            The id of the desired security group.
      * @return The matching security group.
      */
     public Promise<SecurityGroupItemType> getSecurityGroup(final String sg_id)
     {
-        if (!AWSUtil.isValued(sg_id)) {
+        if (!AWSUtil.isValued(sg_id))
+        {
             return Promise.pure(new AWSAdapterException(Resources.getString("missingGroupId")));
         }
         Promise<AsyncLock> lock = AsyncLock.lock("/agility/core/aws/securitygroup/" + sg_id + "/lock");
@@ -611,7 +671,8 @@ public class EC2SecurityGroupOperations
             @Override
             public Promise<SecurityGroupItemType> invoke(final AsyncLock lock)
             {
-                try {
+                try
+                {
                     QueryParams params = _connection.initQueryParams(EC2_DESCRIBE_SECURITY_GROUPS);
                     params.add(new QueryParam(EC2_CLASSIC_SECURITY_GROUP_ID + ".1", sg_id));
                     Promise<DescribeSecurityGroupsResponseType> promise =
@@ -657,7 +718,8 @@ public class EC2SecurityGroupOperations
                     });
                     return result;
                 }
-                catch (Throwable t) {
+                catch (Throwable t)
+                {
                     // make sure lock is released if exception is thrown during call
                     lock.unlock();
                     return Promise.pure(t);
@@ -669,7 +731,7 @@ public class EC2SecurityGroupOperations
 
     /**
      * Gets the security groups that match the given list of ids.
-     * 
+     *
      * @see #getSecurityGroup(String)
      * @param sg_ids
      *            A list of security group ids for the desired groups.
@@ -677,11 +739,13 @@ public class EC2SecurityGroupOperations
      */
     public Promise<List<SecurityGroupItemType>> getSecurityGroups(final List<String> sg_ids)
     {
-        if (!AWSUtil.isValued(sg_ids)) {
+        if (!AWSUtil.isValued(sg_ids))
+        {
             return Promise.pure(new AWSAdapterException(Resources.getString("missingGroupIds")));
         }
         LinkedList<Promise<AsyncLock>> locks = new LinkedList<Promise<AsyncLock>>();
-        for (String id : sg_ids) {
+        for (String id : sg_ids)
+        {
             locks.add(AsyncLock.lock("/agility/core/aws/securitygroup/" + id + "/lock"));
         }
         Promise<List<AsyncLock>> locksSeq = Promise.sequence(locks);
@@ -690,11 +754,14 @@ public class EC2SecurityGroupOperations
             @Override
             public Promise<List<SecurityGroupItemType>> invoke(final List<AsyncLock> locks)
             {
-                try {
+                try
+                {
                     QueryParams params = _connection.initQueryParams(EC2_DESCRIBE_SECURITY_GROUPS);
                     int i = 1;
                     for (String sg_id : sg_ids)
+                    {
                         params.add(new QueryParam(EC2_CLASSIC_SECURITY_GROUP_ID + "." + i++, sg_id));
+                    }
                     Promise<DescribeSecurityGroupsResponseType> promise =
                             _connection.execute(params, DescribeSecurityGroupsResponseType.class);
                     Promise<List<SecurityGroupItemType>> result =
@@ -703,7 +770,8 @@ public class EC2SecurityGroupOperations
                                 @Override
                                 public List<SecurityGroupItemType> invoke(DescribeSecurityGroupsResponseType response)
                                 {
-                                    for (AsyncLock lock : locks) {
+                                    for (AsyncLock lock : locks)
+                                    {
                                         lock.unlock();
                                     }
                                     return response.getSecurityGroupInfo().getItem();
@@ -716,7 +784,8 @@ public class EC2SecurityGroupOperations
                         @Override
                         public void invoke(Throwable arg)
                         {
-                            for (AsyncLock lock : locks) {
+                            for (AsyncLock lock : locks)
+                            {
                                 lock.unlock();
                             }
                         }
@@ -726,7 +795,8 @@ public class EC2SecurityGroupOperations
                         @Override
                         public void invoke(Void arg0)
                         {
-                            for (AsyncLock lock : locks) {
+                            for (AsyncLock lock : locks)
+                            {
                                 lock.unlock();
                             }
                         }
@@ -734,9 +804,11 @@ public class EC2SecurityGroupOperations
                     });
                     return result;
                 }
-                catch (Throwable t) {
+                catch (Throwable t)
+                {
                     // make sure lock is released if exception is thrown during call
-                    for (AsyncLock lock : locks) {
+                    for (AsyncLock lock : locks)
+                    {
                         lock.unlock();
                     }
                     return Promise.pure(t);
@@ -748,7 +820,7 @@ public class EC2SecurityGroupOperations
 
     /**
      * Deletes the security group with the given id.
-     * 
+     *
      * @param sg_id
      *            The id of the security group to be deleted.
      * @return DeleteSecurityGroupResponseType If the delete was successful then the _return field in the response object will be
@@ -756,7 +828,8 @@ public class EC2SecurityGroupOperations
      */
     public Promise<DeleteSecurityGroupResponseType> deleteSecurityGroupById(final String sg_id)
     {
-        if (!AWSUtil.isValued(sg_id)) {
+        if (!AWSUtil.isValued(sg_id))
+        {
             return Promise.pure(new AWSAdapterException(Resources.getString("missingGroupId")));
         }
         Promise<AsyncLock> lock = AsyncLock.lock("/agility/core/aws/securitygroup/" + sg_id + "/lock");
@@ -765,7 +838,8 @@ public class EC2SecurityGroupOperations
             @Override
             public Promise<DeleteSecurityGroupResponseType> invoke(final AsyncLock lock)
             {
-                try {
+                try
+                {
                     QueryParams params = _connection.initQueryParams(EC2_DELETE_SECURITY_GROUP);
                     params.add(new QueryParam(EC2_VPC_SECURITY_GROUP_ID, sg_id));
                     Promise<DeleteSecurityGroupResponseType> result =
@@ -799,7 +873,8 @@ public class EC2SecurityGroupOperations
                     });
                     return result;
                 }
-                catch (Throwable t) {
+                catch (Throwable t)
+                {
                     // make sure lock is released if exception is thrown during call
                     lock.unlock();
                     return Promise.pure(t);
@@ -810,7 +885,7 @@ public class EC2SecurityGroupOperations
 
     /**
      * Deletes the provided security group.
-     * 
+     *
      * @param sg
      *            The security group to be deleted
      * @return DeleteSecurityGroupResponseType If the delete was successful then the _return field in the response object will be
@@ -818,7 +893,8 @@ public class EC2SecurityGroupOperations
      */
     public Promise<DeleteSecurityGroupResponseType> deleteSecurityGroup(SecurityGroupItemType sg)
     {
-        if (!AWSUtil.isValued(sg)) {
+        if (!AWSUtil.isValued(sg))
+        {
             return Promise.pure(new AWSAdapterException(Resources.getString("missingGroup")));
         }
         return deleteSecurityGroupById(sg.getGroupId());
@@ -834,45 +910,65 @@ public class EC2SecurityGroupOperations
     private void addIngressParams(IpPermissionType perm, QueryParams params)
     {
         boolean onlyGroupInfo = true;
-        if (AWSUtil.isValued(perm.getFromPort())) {
+        if (AWSUtil.isValued(perm.getFromPort()))
+        {
             params.add(new QueryParam("IpPermissions.1.FromPort", "" + perm.getFromPort()));
             onlyGroupInfo = false;
         }
-        if (AWSUtil.isValued(perm.getToPort())) {
+        if (AWSUtil.isValued(perm.getToPort()))
+        {
             params.add(new QueryParam("IpPermissions.1.ToPort", "" + perm.getToPort()));
             onlyGroupInfo = false;
         }
-        if (AWSUtil.isValued(perm.getIpProtocol())) {
+        if (AWSUtil.isValued(perm.getIpProtocol()))
+        {
             params.add(new QueryParam("IpPermissions.1.IpProtocol", perm.getIpProtocol().toLowerCase()));
             onlyGroupInfo = false;
         }
-        if (AWSUtil.isValued(perm.getIpRanges()) && AWSUtil.isValued(perm.getIpRanges().getItem())) {
+        if (AWSUtil.isValued(perm.getIpRanges()) && AWSUtil.isValued(perm.getIpRanges().getItem()))
+        {
             int cnt = 1;
-            for (IpRangeItemType ipRange : perm.getIpRanges().getItem()) {
+            for (IpRangeItemType ipRange : perm.getIpRanges().getItem())
+            {
                 params.add(new QueryParam("IpPermissions.1.IpRanges." + cnt + ".CidrIp", ipRange.getCidrIp()));
                 cnt++;
             }
             onlyGroupInfo = false;
         }
-        if (AWSUtil.isValued(perm.getGroups()) && AWSUtil.isValued(perm.getGroups().getItem())) {
+        if (AWSUtil.isValued(perm.getGroups()) && AWSUtil.isValued(perm.getGroups().getItem()))
+        {
             int cnt = 1;
-            if (onlyGroupInfo) {
-                for (UserIdGroupPairType group : perm.getGroups().getItem()) {
+            if (onlyGroupInfo)
+            {
+                for (UserIdGroupPairType group : perm.getGroups().getItem())
+                {
                     if (AWSUtil.isValued(group.getGroupName()))
+                    {
                         params.add(new QueryParam("SourceSecurityGroupName", group.getGroupName()));
+                    }
                     if (AWSUtil.isValued(group.getUserId()))
+                    {
                         params.add(new QueryParam("SourceSecurityGroupOwnerId", group.getUserId()));
+                    }
                     cnt++;
                 }
             }
-            else {
-                for (UserIdGroupPairType group : perm.getGroups().getItem()) {
+            else
+            {
+                for (UserIdGroupPairType group : perm.getGroups().getItem())
+                {
                     if (AWSUtil.isValued(group.getGroupId()))
+                    {
                         params.add(new QueryParam("IpPermissions.1.Groups." + cnt + ".GroupId", group.getGroupId()));
+                    }
                     if (AWSUtil.isValued(group.getUserId()))
+                    {
                         params.add(new QueryParam("IpPermissions.1.Groups." + cnt + ".UserId", group.getUserId()));
+                    }
                     if (AWSUtil.isValued(group.getGroupName()))
+                    {
                         params.add(new QueryParam("IpPermissions.1.Groups." + cnt + ".GroupName", group.getGroupName()));
+                    }
                     cnt++;
                 }
             }
@@ -881,32 +977,359 @@ public class EC2SecurityGroupOperations
 
     private void addEgressParams(IpPermissionType perm, QueryParams params)
     {
-        if (AWSUtil.isValued(perm.getFromPort())) {
+        if (AWSUtil.isValued(perm.getFromPort()))
+        {
             params.add(new QueryParam("IpPermissions.1.FromPort", "" + perm.getFromPort()));
         }
-        if (AWSUtil.isValued(perm.getToPort())) {
+        if (AWSUtil.isValued(perm.getToPort()))
+        {
             params.add(new QueryParam("IpPermissions.1.ToPort", "" + perm.getToPort()));
         }
-        if (AWSUtil.isValued(perm.getIpProtocol())) {
+        if (AWSUtil.isValued(perm.getIpProtocol()))
+        {
             params.add(new QueryParam("IpPermissions.1.IpProtocol", perm.getIpProtocol().toLowerCase()));
         }
-        if (AWSUtil.isValued(perm.getIpRanges()) && AWSUtil.isValued(perm.getIpRanges().getItem())) {
+        if (AWSUtil.isValued(perm.getIpRanges()) && AWSUtil.isValued(perm.getIpRanges().getItem()))
+        {
             int cnt = 1;
-            for (IpRangeItemType ipRange : perm.getIpRanges().getItem()) {
+            for (IpRangeItemType ipRange : perm.getIpRanges().getItem())
+            {
                 params.add(new QueryParam("IpPermissions.1.IpRanges." + cnt + ".CidrIp", ipRange.getCidrIp()));
                 cnt++;
             }
         }
-        if (AWSUtil.isValued(perm.getGroups()) && AWSUtil.isValued(perm.getGroups().getItem())) {
+        if (AWSUtil.isValued(perm.getGroups()) && AWSUtil.isValued(perm.getGroups().getItem()))
+        {
             int cnt = 1;
-            for (UserIdGroupPairType group : perm.getGroups().getItem()) {
+            for (UserIdGroupPairType group : perm.getGroups().getItem())
+            {
                 if (AWSUtil.isValued(group.getGroupId()))
+                {
                     params.add(new QueryParam("IpPermissions.1.Groups." + cnt + ".GroupId", group.getGroupId()));
+                }
                 if (AWSUtil.isValued(group.getUserId()))
+                {
                     params.add(new QueryParam("IpPermissions.1.Groups." + cnt + ".UserId", group.getUserId()));
+                }
                 cnt++;
             }
         }
+    }
+
+    /**
+     * Creates a security group for the given AccessList. If a vpcId is provided then an EC2-VPC security group is created. The
+     * name of the security group is set to the name of the AccessList. The description of the security group is set to the
+     * description of the AccessList.
+     *
+     * @see #createSecurityGroup(String, String, String)
+     * @param acl
+     *            AccessList to create a security group for.
+     * @param vpcId
+     *            For EC2-VPC security groups, the id of the VPC the group is for. Optional, may be null.
+     * @return A IHttpResponse.
+     */
+    public Promise<IHttpResponse> createSecurityGroupHttp(AccessList acl, String vpcId)
+    {
+        if (!AWSUtil.isValued(acl))
+        {
+            return Promise.pure(new AWSAdapterException(Resources.getString("missingAcl")));
+        }
+        QueryParams params = _connection.initQueryParams(EC2_CREATE_SECURITY_GROUP);
+        params.add(new QueryParam("GroupName", acl.getName()));
+        params.add(new QueryParam("GroupDescription", acl.getDescription() != null ? acl.getDescription() : acl.getName()));
+        if (AWSUtil.isValued(vpcId))
+        {
+            params.add(new QueryParam("VpcId", vpcId));
+        }
+        return _connection.execute(params, IHttpResponse.class);
+    }
+
+    /**
+     * Method that calls the authorizeSecurityGroupIngress Query API call. See the amazon docs for more info.
+     * https://docs.aws.amazon.com/AWSEC2/latest/APIReference/API_AuthorizeSecurityGroupIngress.html
+     *
+     * @param groupId
+     *            The id of the security group to add the rule to.
+     * @param perm
+     *            IpPermissionType with the permissions to set up.
+     * @return IHttpResponse
+     */
+    public Promise<IHttpResponse> authorizeSecurityGroupIngressHttp(final String groupId, final IpPermissionType perm)
+    {
+        if (!AWSUtil.isValued(groupId))
+        {
+            return Promise.pure(new AWSAdapterException(Resources.getString("missingGroupId")));
+        }
+        if (perm == null)
+        {
+            return Promise.pure(new AWSAdapterException(Resources.getString("missingPermType")));
+        }
+        Promise<AsyncLock> lock = AsyncLock.lock("/agility/core/aws/securitygroup/" + groupId + "/lock");
+        return lock.flatMap(new Function<AsyncLock, Promise<IHttpResponse>>() {
+
+            @Override
+            public Promise<IHttpResponse> invoke(final AsyncLock lock)
+            {
+                try
+                {
+                    QueryParams params = _connection.initQueryParams(EC2_AUTHORIZE_SECURITY_GROUP_INGRESS);
+                    params.add(new QueryParam("GroupId", groupId));
+                    addIngressParams(perm, params);
+
+                    Promise<IHttpResponse> result = _connection.execute(params, IHttpResponse.class);
+                    result.onComplete(new Callback<IHttpResponse>() {
+
+                        @Override
+                        public void invoke(IHttpResponse arg)
+                        {
+                            lock.unlock();
+                        }
+
+                    });
+                    result.onFailure(new Callback<Throwable>() {
+
+                        // make sure lock is released if exception is thrown in the future
+                        @Override
+                        public void invoke(Throwable arg)
+                        {
+                            lock.unlock();
+                        }
+                    });
+                    result.onCancel(new Callback<Void>() {
+
+                        @Override
+                        public void invoke(Void arg0)
+                        {
+                            lock.unlock();
+                        }
+
+                    });
+                    return result;
+                }
+                catch (Throwable t)
+                {
+                    // make sure lock is released if exception is thrown during call
+                    lock.unlock();
+                    return Promise.pure(t);
+                }
+            }
+        });
+    }
+
+    /**
+     * Method that calls the revokeSecurityGroupIngress Query API call. See the amazon docs for more info.
+     * https://docs.aws.amazon.com/AWSEC2/latest/APIReference/API_RevokeSecurityGroupIngress.html
+     *
+     * @param groupId
+     *            The id of the security group to add the rule to.
+     * @param perm
+     *            IpPermissionType with the permissions to set up.
+     * @return IHttpResponse
+     */
+    public Promise<IHttpResponse> revokeSecurityGroupIngressHttp(final String groupId, final IpPermissionType perm)
+    {
+        if (!AWSUtil.isValued(groupId))
+        {
+            return Promise.pure(new AWSAdapterException(Resources.getString("missingGroupId")));
+        }
+        if (perm == null)
+        {
+            return Promise.pure(new AWSAdapterException(Resources.getString("missingPermType")));
+        }
+        Promise<AsyncLock> lock = AsyncLock.lock("/agility/core/aws/securitygroup/" + groupId + "/lock");
+        return lock.flatMap(new Function<AsyncLock, Promise<IHttpResponse>>() {
+
+            @Override
+            public Promise<IHttpResponse> invoke(final AsyncLock lock)
+            {
+                try
+                {
+                    QueryParams params = _connection.initQueryParams(EC2_REVOKE_SECURITY_GROUP_INGRESS);
+                    params.add(new QueryParam("GroupId", groupId));
+                    addIngressParams(perm, params);
+
+                    Promise<IHttpResponse> result = _connection.execute(params, IHttpResponse.class);
+                    result.onComplete(new Callback<IHttpResponse>() {
+
+                        @Override
+                        public void invoke(IHttpResponse arg)
+                        {
+                            lock.unlock();
+                        }
+
+                    });
+                    result.onFailure(new Callback<Throwable>() {
+
+                        // make sure lock is released if exception is thrown in the future
+                        @Override
+                        public void invoke(Throwable arg)
+                        {
+                            lock.unlock();
+                        }
+                    });
+                    result.onCancel(new Callback<Void>() {
+
+                        @Override
+                        public void invoke(Void arg0)
+                        {
+                            lock.unlock();
+                        }
+
+                    });
+                    return result;
+                }
+                catch (Throwable t)
+                {
+                    // make sure lock is released if exception is thrown during call
+                    lock.unlock();
+                    return Promise.pure(t);
+                }
+            }
+        });
+    }
+
+    /**
+     * Method that calls the authorizeSecurityGroupEgress Query API call. See the amazon docs for more info.
+     * https://docs.aws.amazon.com/AWSEC2/latest/APIReference/API_AuthorizeSecurityGroupEgress.html
+     *
+     * @param groupId
+     *            The id of the security group to add the rule to.
+     * @param perm
+     *            IpPermissionType with the permissions to set up.
+     * @return An IHttpResponse. If isReturn is true then it was a success.
+     */
+    public Promise<IHttpResponse> authorizeSecurityGroupEgressHttp(final String groupId, final IpPermissionType perm)
+    {
+        if (!AWSUtil.isValued(groupId))
+        {
+            return Promise.pure(new AWSAdapterException(Resources.getString("missingGroupId")));
+        }
+        if (perm == null)
+        {
+            return Promise.pure(new AWSAdapterException(Resources.getString("missingPermType")));
+        }
+        Promise<AsyncLock> lock = AsyncLock.lock("/agility/core/aws/securitygroup/" + groupId + "/lock");
+        return lock.flatMap(new Function<AsyncLock, Promise<IHttpResponse>>() {
+
+            @Override
+            public Promise<IHttpResponse> invoke(final AsyncLock lock)
+            {
+                try
+                {
+                    QueryParams params = _connection.initQueryParams(EC2_AUTHORIZE_SECURITY_GROUP_EGRESS);
+                    params.add(new QueryParam("GroupId", groupId));
+                    addEgressParams(perm, params);
+
+                    Promise<IHttpResponse> result = _connection.execute(params, IHttpResponse.class);
+                    result.onComplete(new Callback<IHttpResponse>() {
+
+                        @Override
+                        public void invoke(IHttpResponse arg)
+                        {
+                            lock.unlock();
+                        }
+
+                    });
+                    result.onFailure(new Callback<Throwable>() {
+
+                        // make sure lock is released if exception is thrown in the future
+                        @Override
+                        public void invoke(Throwable arg)
+                        {
+                            lock.unlock();
+                        }
+                    });
+                    result.onCancel(new Callback<Void>() {
+
+                        @Override
+                        public void invoke(Void arg0)
+                        {
+                            lock.unlock();
+                        }
+
+                    });
+                    return result;
+                }
+                catch (Throwable t)
+                {
+                    // make sure lock is released if exception is thrown during call
+                    lock.unlock();
+                    return Promise.pure(t);
+                }
+            }
+        });
+    }
+
+    /**
+     * Method that calls the revokeSecurityGroupEgress Query API call. See the amazon docs for more info.
+     * https://docs.aws.amazon.com/AWSEC2/latest/APIReference/API_RevokeSecurityGroupEgress.html
+     *
+     * @param groupId
+     *            The id of the security group to add the rule to.
+     * @param perm
+     *            IpPermissionType with the permissions to set up.
+     * @return IHttpResponse. If isReturn is true then it was a success.
+     */
+    public Promise<IHttpResponse> revokeSecurityGroupEgressHttp(final String groupId, final IpPermissionType perm)
+    {
+        if (!AWSUtil.isValued(groupId))
+        {
+            return Promise.pure(new AWSAdapterException(Resources.getString("missingGroupId")));
+        }
+        if (perm == null)
+        {
+            return Promise.pure(new AWSAdapterException(Resources.getString("missingPermType")));
+        }
+        Promise<AsyncLock> lock = AsyncLock.lock("/agility/core/aws/securitygroup/" + groupId + "/lock");
+        return lock.flatMap(new Function<AsyncLock, Promise<IHttpResponse>>() {
+
+            @Override
+            public Promise<IHttpResponse> invoke(final AsyncLock lock)
+            {
+                try
+                {
+                    QueryParams params = _connection.initQueryParams(EC2_REVOKE_SECURITY_GROUP_EGRESS);
+                    params.add(new QueryParam("GroupId", groupId));
+                    addEgressParams(perm, params);
+
+                    Promise<IHttpResponse> result = _connection.execute(params, IHttpResponse.class);
+                    result.onComplete(new Callback<IHttpResponse>() {
+
+                        @Override
+                        public void invoke(IHttpResponse arg)
+                        {
+                            lock.unlock();
+                        }
+
+                    });
+                    result.onFailure(new Callback<Throwable>() {
+
+                        // make sure lock is released if exception is thrown in the future
+                        @Override
+                        public void invoke(Throwable arg)
+                        {
+                            lock.unlock();
+                        }
+                    });
+                    result.onCancel(new Callback<Void>() {
+
+                        @Override
+                        public void invoke(Void arg0)
+                        {
+                            lock.unlock();
+                        }
+
+                    });
+                    return result;
+                }
+                catch (Throwable t)
+                {
+                    // make sure lock is released if exception is thrown during call
+                    lock.unlock();
+                    return Promise.pure(t);
+                }
+            }
+        });
     }
 
 }
