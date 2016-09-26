@@ -1,55 +1,100 @@
 <ivy-module version="2.0" xmlns:e="http://ant.apache.org/ivy/extra">
-  <info organisation="com.servicemesh" module="${ant.project.name}" />
-   
-  <dependencies>
-    <dependency org="commons-codec" name="commons-codec" rev="1.4">
-      <artifact name="commons-codec" type="jar" ext="jar" />
-    </dependency>
-    <dependency org="com.servicemesh.agility-platform-sdk" name="httpasyncclient" rev="4.1">
-      <artifact name="httpasyncclient" type="jar" ext="jar" />
-    </dependency>
-    <dependency org="org.apache.httpcomponents" name="httpclient" rev="4.4.1" >
-      <exclude org="org.apache.httpcomponents" module="httpcore" name="*" type="*" ext="*"  matcher="exact"/>
-    </dependency>
-    <dependency org="com.servicemesh.agility-platform-sdk" name="httpcore" rev="4.4.1">
-      <artifact name="httpcore" type="jar" ext="jar" />
-    </dependency>
-    <dependency org="com.servicemesh.agility-platform-sdk" name="httpcore-nio" rev="4.4.1">
-      <artifact name="httpcore-nio" type="jar" ext="jar" />
-    </dependency>  
-    
-	<!-- common.ivy.lib -->
-	<dependency org="log4j" name="log4j" rev="1.2.17" />		
-	<dependency org="org.slf4j" name="slf4j-log4j12" rev="1.7.5"/>
-	<!-- common.dist -->
-	<dependency org="com.servicemesh" name="agility.core" rev="10.2.4.1010" transitive="false" changing="true"/>
-    <dependency org="com.servicemesh" name="agility.io" rev="10.2.4.1010" transitive="false" changing="true"/>
-    <dependency org="com.servicemesh" name="agility.api" rev="10.2.4.1010" transitive="false" changing="true"/>
-    <dependency org="com.servicemesh" name="agility.distributed.sync" rev="10.2.4.1010" transitive="false" changing="true"/>
-    	
-	
-	<!-- common.lib -->
-	<dependency org="net.sourceforge.cobertura" name="cobertura" rev="2.1.1"/>
-    
-    <!--common.ivy.lib -->
-	<dependency org="org.ow2.asm" name="asm" rev="5.0.1"/>
-	<dependency org="asm" name="asm" rev="3.2"/>
-	<dependency org="org.ow2.asm" name="asm-commons" rev="5.0.1"/>
-	<dependency org="org.ow2.asm" name="asm-tree" rev="5.0.1"/>
-	<dependency org="org.ow2.asm" name="asm-util" rev="5.0.1"/>
-	<dependency org="org.ow2.asm" name="asm-analysis" rev="5.0.1"/>
-	<dependency org="org.apache.commons" name="commons-lang3" rev="3.3.2"/>
-	<dependency org="commons-logging" name="commons-logging" rev="1.1.1"/>
-	<dependency org="oro" name="oro" rev="2.0.8"/>
-	<dependency org="com.google.guava" name="guava" rev="16.0.1"/>	
-	<dependency org="org.apache.zookeeper" name="zookeeper" rev="3.4.2"/>	
-	<dependency org="org.codehaus.groovy" name="groovy-all" rev="1.8.9" />
-	<dependency org="org.javassist" name="javassist" rev="3.18.2-GA"/>
-	<dependency org="junit" name="junit" rev="4.12"/>	 
-	<dependency org="org.mockito" name="mockito-all" rev="1.10.19"/>
-	<dependency org="org.powermock" name="powermock-mockito-release-full" rev="1.6.4">
-	    <artifact name="powermock-mockito-release-full" type="jar" ext="jar" e:tag="-full"/>
-	</dependency> 	
-	<dependency org="com.fasterxml.uuid" name="java-uuid-generator" rev="3.0.0"/>		
-  </dependencies>
+	<info organisation="com.servicemesh" module="${ant.project.name}" />
+
+	<dependencies>
+		<dependency org="commons-codec" name="commons-codec" rev="1.4">
+			<artifact name="commons-codec" type="jar" ext="jar" />
+		</dependency>
+		<dependency org="com.servicemesh.agility-platform-sdk" name="httpasyncclient" rev="4.1" transitive="false">
+			<artifact name="httpasyncclient" type="jar" ext="jar" />
+		</dependency>
+		<dependency org="org.apache.httpcomponents" name="httpclient" rev="4.4.1" transitive="false">
+			<artifact name="httpclient" type="jar" ext="jar" />
+			<exclude org="org.apache.httpcomponents" module="httpcore" name="*" type="*" ext="*" matcher="exact" />
+		</dependency>
+		<dependency org="com.servicemesh.agility-platform-sdk" name="httpcore" rev="4.4.1" transitive="false">
+			<artifact name="httpcore" type="jar" ext="jar" />
+		</dependency>
+		<dependency org="com.servicemesh.agility-platform-sdk" name="httpcore-nio" rev="4.4.1" transitive="false">
+			<artifact name="httpcore-nio" type="jar" ext="jar" />
+		</dependency>
+
+		<!-- common.ivy.lib -->
+		<dependency org="log4j" name="log4j" rev="1.2.17" transitive="false">
+			<artifact name="log4j" type="jar" ext="jar" />
+		</dependency>
+		<dependency org="org.slf4j" name="slf4j-log4j12" rev="1.7.5" transitive="false">
+			<artifact name="slf4j-log4j12" type="jar" ext="jar" />
+		</dependency>
+		<!-- common.dist -->
+		<dependency org="com.servicemesh" name="agility.api" rev="getLatestFromBintray(10,2,4)" transitive="false">
+			<artifact name="agility.api" type="jar" ext="jar" />
+		</dependency>
+		<dependency org="com.servicemesh" name="agility.core" rev="getLatestFromBintray(10,2,4)" transitive="false">
+			<artifact name="agility.core" type="jar" ext="jar" />
+		</dependency>
+		<dependency org="com.servicemesh" name="agility.io" rev="getLatestFromBintray(10,2,4)" transitive="false">
+			<artifact name="agility.io" type="jar" ext="jar" />
+		</dependency>
+		<dependency org="com.servicemesh" name="agility.distributed.sync" rev="getLatestFromBintray(10,2,4)" transitive="false">
+			<artifact name="agility.distributed.sync" type="jar" ext="jar" />
+		</dependency>
+
+
+		<!-- common.lib -->
+		<dependency org="net.sourceforge.cobertura" name="cobertura" rev="2.1.1" transitive="false">
+			<artifact name="cobertura" type="jar" ext="jar" />
+		</dependency>
+
+		<!--common.ivy.lib -->
+		<dependency org="asm" name="asm" rev="3.2" transitive="false" />
+		<dependency org="org.ow2.asm" name="asm" rev="5.0.1" transitive="false">
+			<artifact name="asm" type="jar" ext="jar" />
+		</dependency>
+		<dependency org="org.ow2.asm" name="asm-commons" rev="5.0.1" transitive="false">
+			<artifact name="asm-commons" type="jar" ext="jar" />
+		</dependency>
+		<dependency org="org.ow2.asm" name="asm-tree" rev="5.0.1" transitive="false">
+			<artifact name="asm-tree" type="jar" ext="jar" />
+		</dependency>
+		<dependency org="org.ow2.asm" name="asm-util" rev="5.0.1" transitive="false">
+			<artifact name="asm-util" type="jar" ext="jar" />
+		</dependency>
+		<dependency org="org.ow2.asm" name="asm-analysis" rev="5.0.1" transitive="false">
+			<artifact name="asm-analysis" type="jar" ext="jar" />
+		</dependency>
+		<dependency org="org.apache.commons" name="commons-lang3" rev="3.3.2" transitive="false">
+			<artifact name="commons-lang3" type="jar" ext="jar" />
+		</dependency>
+		<dependency org="commons-logging" name="commons-logging" rev="1.1.1" transitive="false">
+			<artifact name="commons-logging" type="jar" ext="jar" />
+		</dependency>
+		<dependency org="oro" name="oro" rev="2.0.8" transitive="false">
+			<artifact name="oro" type="jar" ext="jar" />
+		</dependency>
+		<dependency org="com.google.guava" name="guava" rev="16.0.1" transitive="false">
+			<artifact name="guava" type="jar" ext="jar" />
+		</dependency>
+		<dependency org="org.apache.zookeeper" name="zookeeper" rev="3.4.2" transitive="false">
+			<artifact name="zookeeper" type="jar" ext="jar" />
+		</dependency>
+		<dependency org="org.codehaus.groovy" name="groovy-all" rev="1.8.9" transitive="false">
+			<artifact name="groovy-all" type="jar" ext="jar" />
+		</dependency>
+		<dependency org="org.javassist" name="javassist" rev="3.18.2-GA" transitive="false">
+			<artifact name="javassist" type="jar" ext="jar" />
+		</dependency>
+		<dependency org="junit" name="junit" rev="4.12" transitive="false">
+			<artifact name="junit" type="jar" ext="jar" />
+		</dependency>
+		<dependency org="org.mockito" name="mockito-all" rev="1.10.19" transitive="false">
+			<artifact name="mockito-all" type="jar" ext="jar" />
+		</dependency>
+		<dependency org="org.powermock" name="powermock-mockito-release-full" rev="1.6.4" transitive="false">
+			<artifact name="powermock-mockito-release-full" type="jar" ext="jar" e:tag="-full" />
+		</dependency>
+		<dependency org="com.fasterxml.uuid" name="java-uuid-generator" rev="3.0.0" transitive="false">
+			<artifact name="java-uuid-generator" type="jar" ext="jar" />
+		</dependency>
+	</dependencies>
 </ivy-module>

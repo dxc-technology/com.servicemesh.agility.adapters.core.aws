@@ -1,23 +1,23 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ivy-settings>
-  <settings defaultResolver="ivy" />
-  <resolvers>
-    <url name="maven-central" m2compatible="true" >
-        <artifact pattern="http://central.maven.org/maven2/[organization]/[module]/[revision]/[artifact]-[revision]([tag]).[ext]" />
-        <ivy pattern="http://central.maven.org/maven2/[organization]/[module]/[revision]/[module]-[revision].[ext]" />
-    </url>
-    <url name="csc-opensrc" m2compatible="true" >
-        <artifact pattern="https://dl.bintray.com/csc/opensource/[organization]/[module]/[revision]/[artifact]-[revision]([tag]).[ext]" />
-        <ivy pattern="https://dl.bintray.com/csc/opensource/[organization]/[module]/[revision]/[module]-[revision].[ext]" />
-    </url>
-    <chain name="ivy" returnFirst="true">
-        <resolver ref="maven-central" />
-        <resolver ref="csc-opensrc" />
-    </chain>
+	<settings defaultResolver="ivy" />
+	<resolvers>
+		<url name="maven-central" m2compatible="true">
+			<artifact pattern="http://central.maven.org/maven2/[organization]/[module]/[revision]/[artifact]-[revision]([tag]).[ext]" />
+			<ivy pattern="http://central.maven.org/maven2/[organization]/[module]/[revision]/[module]-[revision].[ext]" />
+		</url>
+		<chain name="ivy" returnFirst="true">
+			<resolver ref="maven-central" />
+			<bintray subject="csc" repo="opensource" />
+		</chain>
 
-    <!-- Used for CI release builds -->
-    <chain name="release" returnFirst="true">
-    </chain>
-  </resolvers>
-  
+		<!-- Used for CI release builds -->
+		<chain name="release" returnFirst="true">
+		</chain>
+	</resolvers>
+	<version-matchers usedefaults="true">
+		<pattern-vm>
+			<match revision="getLatestFromBintray" pattern="${major}\.${minor}\.${build}\.\d+." args="major, minor, build " matcher="regexp" />
+		</pattern-vm>
+	</version-matchers>
 </ivy-settings>
