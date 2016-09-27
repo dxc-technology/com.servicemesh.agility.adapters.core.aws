@@ -6,10 +6,7 @@
         <artifact pattern="http://central.maven.org/maven2/[organization]/[module]/[revision]/[artifact]-[revision]([tag]).[ext]" />
         <ivy pattern="http://central.maven.org/maven2/[organization]/[module]/[revision]/[module]-[revision].[ext]" />
     </url>
-    <url name="csc-opensrc" m2compatible="true" >
-        <artifact pattern="https://dl.bintray.com/csc/opensource/[organization]/[module]/[revision]/[artifact]-[revision]([tag]).[ext]" />
-        <ivy pattern="https://dl.bintray.com/csc/opensource/[organization]/[module]/[revision]/[module]-[revision].[ext]" />
-    </url>
+    <bintray name="csc-opensrc" m2compatible="true" subject="csc" repo="opensource"/>
     <chain name="ivy" returnFirst="true">
         <resolver ref="maven-central" />
         <resolver ref="csc-opensrc" />
