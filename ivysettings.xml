@@ -2,7 +2,10 @@
 <ivy-settings>
   <settings defaultResolver="ivy" />
   <resolvers>
-    <ibiblio name="maven-central" m2compatible="true"/>
+    <url name="maven-central" m2compatible="true" >
+        <artifact pattern="http://central.maven.org/maven2/[organization]/[module]/[revision]/[artifact]-[revision]([tag]).[ext]" />
+        <ivy pattern="http://central.maven.org/maven2/[organization]/[module]/[revision]/[module]-[revision].[ext]" />
+    </url>
     <bintray name="csc-opensrc" m2compatible="true" subject="csc" repo="opensource"/>
     <chain name="ivy" returnFirst="true">
         <resolver ref="maven-central" />
