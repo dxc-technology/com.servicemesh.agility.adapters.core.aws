@@ -6,7 +6,7 @@
 //
 
 
-package com.amazonaws.ec2.doc._2013_10_15;
+package com.amazonaws.ec2.doc._2015_10_01;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -16,17 +16,17 @@ import javax.xml.bind.annotation.XmlType;
 
 
 /**
- * <p>Java class for DescribeVpcsResponseType complex type.
+ * <p>Java class for ResourceTagSetItemType complex type.
  * 
  * <p>The following schema fragment specifies the expected content contained within this class.
  * 
  * <pre>
- * &lt;complexType name="DescribeVpcsResponseType">
+ * &lt;complexType name="ResourceTagSetItemType">
  *   &lt;complexContent>
  *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType">
  *       &lt;sequence>
- *         &lt;element name="requestId" type="{http://www.w3.org/2001/XMLSchema}string"/>
- *         &lt;element name="vpcSet" type="{http://ec2.amazonaws.com/doc/2013-10-15/}VpcSetType"/>
+ *         &lt;element name="key" type="{http://www.w3.org/2001/XMLSchema}string"/>
+ *         &lt;element name="value" type="{http://www.w3.org/2001/XMLSchema}string"/>
  *       &lt;/sequence>
  *     &lt;/restriction>
  *   &lt;/complexContent>
@@ -36,64 +36,64 @@ import javax.xml.bind.annotation.XmlType;
  * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(name = "DescribeVpcsResponseType", propOrder = {
-    "requestId",
-    "vpcSet"
+@XmlType(name = "ResourceTagSetItemType", propOrder = {
+    "key",
+    "value"
 })
-@XmlRootElement(name = "DescribeVpcsResponseType")
-public class DescribeVpcsResponseType {
+@XmlRootElement(name = "ResourceTagSetItemType")
+public class ResourceTagSetItemType {
 
     @XmlElement(required = true)
-    protected String requestId;
+    protected String key;
     @XmlElement(required = true)
-    protected VpcSetType vpcSet;
+    protected String value;
 
     /**
-     * Gets the value of the requestId property.
+     * Gets the value of the key property.
      * 
      * @return
      *     possible object is
      *     {@link String }
      *     
      */
-    public String getRequestId() {
-        return requestId;
+    public String getKey() {
+        return key;
     }
 
     /**
-     * Sets the value of the requestId property.
+     * Sets the value of the key property.
      * 
      * @param value
      *     allowed object is
      *     {@link String }
      *     
      */
-    public void setRequestId(String value) {
-        this.requestId = value;
+    public void setKey(String value) {
+        this.key = value;
     }
 
     /**
-     * Gets the value of the vpcSet property.
+     * Gets the value of the value property.
      * 
      * @return
      *     possible object is
-     *     {@link VpcSetType }
+     *     {@link String }
      *     
      */
-    public VpcSetType getVpcSet() {
-        return vpcSet;
+    public String getValue() {
+        return value;
     }
 
     /**
-     * Sets the value of the vpcSet property.
+     * Sets the value of the value property.
      * 
      * @param value
      *     allowed object is
-     *     {@link VpcSetType }
+     *     {@link String }
      *     
      */
-    public void setVpcSet(VpcSetType value) {
-        this.vpcSet = value;
+    public void setValue(String value) {
+        this.value = value;
     }
 
 }

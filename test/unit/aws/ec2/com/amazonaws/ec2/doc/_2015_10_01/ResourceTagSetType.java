@@ -6,7 +6,7 @@
 //
 
 
-package com.amazonaws.ec2.doc._2013_10_15;
+package com.amazonaws.ec2.doc._2015_10_01;
 
 import java.util.ArrayList;
 import java.util.List;
