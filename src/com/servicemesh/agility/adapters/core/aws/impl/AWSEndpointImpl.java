@@ -51,6 +51,9 @@ public class AWSEndpointImpl implements AWSEndpoint
         private static JAXBContext getContext(String contextPath, ClassLoader loader)
         {
             JAXBContext context;
+            /*  Original code - this would have 2 different bundles sharing the same
+             * JAXBContext but on different classloaders...
+             *
             synchronized (Holder.lock) {
                 context = Holder.contextMap.get(contextPath);
                 if (context == null) {
@@ -58,15 +61,25 @@ public class AWSEndpointImpl implements AWSEndpoint
                     Holder.contextMap.put(contextPath, context);
                 }
             }
+            */
+            //  Always create a new context for each new endpoint:
+            synchronized (Holder.lock)
+            {
+                context = Holder.createContext(contextPath, loader);
+                Holder.contextMap.put(contextPath, context);
+            }
+
             return context;
         }
 
         private static JAXBContext createContext(String contextPath, ClassLoader loader)
         {
-            try {
+            try
+            {
                 return JAXBContext.newInstance(contextPath, loader);
             }
-            catch (Exception ex) {
+            catch (Exception ex)
+            {
                 AWSEndpointImpl._logger.error("createContext: " + contextPath + ", exception=" + ex);
                 return null;
             }
@@ -75,7 +88,8 @@ public class AWSEndpointImpl implements AWSEndpoint
         private static JAXBContext lookupContext(String contextPath)
         {
             JAXBContext context = null;
-            synchronized (Holder.lock) {
+            synchronized (Holder.lock)
+            {
                 context = Holder.contextMap.get(contextPath);
             }
             return context;
@@ -83,7 +97,8 @@ public class AWSEndpointImpl implements AWSEndpoint
 
         private static void unregisterContext(String contextPath)
         {
-            synchronized (Holder.lock) {
+            synchronized (Holder.lock)
+            {
                 Holder.contextMap.remove(contextPath);
             }
         }
@@ -116,8 +131,7 @@ public class AWSEndpointImpl implements AWSEndpoint
      * Creates an AWS endpoint.
      *
      * @param address
-     *            The address of the AWS access point. See AWSEndpointFactory
-     *            getEndpoint() methods.
+     *            The address of the AWS access point. See AWSEndpointFactory getEndpoint() methods.
      * @param regionName
      *            The AWS region name, e.g. "us-east-1". May be null, in which case it must be part of the address.
      * @param version
@@ -140,23 +154,29 @@ public class AWSEndpointImpl implements AWSEndpoint
         String serviceName = null;
         int i1 = hostName.indexOf('.');
 
-        if (i1 > 0) {
+        if (i1 > 0)
+        {
             serviceName = hostName.substring(0, i1);
             i1++;
-            if (! AWSUtil.isValued(regionName)) {
+            if (!AWSUtil.isValued(regionName))
+            {
                 int i2 = hostName.indexOf('.', i1);
-                if (i2 > i1) {
+                if (i2 > i1)
+                {
                     regionName = hostName.substring(i1, i2);
                 }
             }
         }
-        if (! AWSUtil.isValued(serviceName)) {
+        if (!AWSUtil.isValued(serviceName))
+        {
             throw new AWSAdapterException(Resources.getString("missingService", address));
         }
-        if (! AWSUtil.isValued(regionName)) {
+        if (!AWSUtil.isValued(regionName))
+        {
             throw new AWSAdapterException(Resources.getString("missingRegion", address));
         }
-        if (! AWSUtil.isValued(version)) {
+        if (!AWSUtil.isValued(version))
+        {
             throw new AWSAdapterException(Resources.getString("emptyVersion"));
         }
 
@@ -182,24 +202,29 @@ public class AWSEndpointImpl implements AWSEndpoint
      *            One of the JAXB classes for the AWS API. Used to initialize the default context for the endpoint.
      */
     public <T> AWSEndpointImpl(String uriScheme, String hostName, String serviceName, String regionName, String version,
-                               int urlExpireSecs, Class<T> contextClass)
+            int urlExpireSecs, Class<T> contextClass)
     {
-        if (! AWSUtil.isValued(uriScheme)) {
+        if (!AWSUtil.isValued(uriScheme))
+        {
             throw new AWSAdapterException(Resources.getString("emptyUriScheme"));
         }
-        if (! AWSUtil.isValued(hostName)) {
+        if (!AWSUtil.isValued(hostName))
+        {
             throw new AWSAdapterException(Resources.getString("emptyHostname"));
         }
         String address = uriScheme + "://" + hostName;
         hostName = parseHostName(address);
 
-        if (! AWSUtil.isValued(serviceName)) {
+        if (!AWSUtil.isValued(serviceName))
+        {
             throw new AWSAdapterException(Resources.getString("emptyService"));
         }
-        if (! AWSUtil.isValued(regionName)) {
+        if (!AWSUtil.isValued(regionName))
+        {
             throw new AWSAdapterException(Resources.getString("emptyRegion"));
         }
-        if (! AWSUtil.isValued(version)) {
+        if (!AWSUtil.isValued(version))
+        {
             throw new AWSAdapterException(Resources.getString("emptyVersion"));
         }
 
@@ -212,22 +237,24 @@ public class AWSEndpointImpl implements AWSEndpoint
     private String parseHostName(String address)
     {
         String hostName = null;
-        try {
+        try
+        {
             URL url = new URL(address);
             hostName = url.getHost();
         }
-        catch (Exception ex) {
+        catch (Exception ex)
+        {
             throw new AWSAdapterException(Resources.getString("invalidAddress", address));
         }
-        if (! AWSUtil.isValued(hostName)) {
+        if (!AWSUtil.isValued(hostName))
+        {
             throw new AWSAdapterException(Resources.getString("missingHostname", address));
         }
         return hostName;
     }
 
-    private <T> void init(String address, String hostName, String serviceName,
-                          String regionName, String version,
-                          int urlExpireSecs, Class<T> contextClass)
+    private <T> void init(String address, String hostName, String serviceName, String regionName, String version,
+            int urlExpireSecs, Class<T> contextClass)
     {
         _address = address;
         _hostName = hostName;
@@ -235,21 +262,23 @@ public class AWSEndpointImpl implements AWSEndpoint
         _regionName = regionName;
         _version = version;
         _urlExpireSecs = urlExpireSecs;
-        try {
+        try
+        {
             _contextLoader = contextClass.getClassLoader();
             String contextPath = contextClass.getPackage().getName();
             _context = Holder.getContext(contextPath, _contextLoader);
-            if (_context == null) {
+            if (_context == null)
+            {
                 throw new AWSAdapterException(Resources.getString("missingContext", contextClass.getName()));
             }
-            if (_logger.isTraceEnabled()) {
-                _logger.trace("init: address=" + _address + ", hostName=" +
-                              _hostName + ", serviceName=" + _serviceName +
-                              ", regionName=" + _regionName + ", version=" +
-                              _version + ", urlExpireSecs=" + _urlExpireSecs);
+            if (_logger.isTraceEnabled())
+            {
+                _logger.trace("init: address=" + _address + ", hostName=" + _hostName + ", serviceName=" + _serviceName
+                        + ", regionName=" + _regionName + ", version=" + _version + ", urlExpireSecs=" + _urlExpireSecs);
             }
         }
-        catch (Exception e) {
+        catch (Exception e)
+        {
             throw new AWSAdapterException(Resources.getString("contextException", e));
         }
     }
@@ -318,7 +347,8 @@ public class AWSEndpointImpl implements AWSEndpoint
     public <T> T decode(IHttpResponse response, String responseClassPath, Class<T> responseClass)
     {
         JAXBContext responseContext = getContext(responseClassPath);
-        if (responseContext == null) {
+        if (responseContext == null)
+        {
             throw new AWSAdapterException(Resources.getString("missingDecodeContext", responseClassPath));
         }
         return doDecode(response, responseClass, responseContext);
@@ -326,33 +356,40 @@ public class AWSEndpointImpl implements AWSEndpoint
 
     private <T> T doDecode(IHttpResponse response, Class<T> responseClass, JAXBContext responseContext)
     {
-        if (responseClass.isInstance(response)) {
+        if (responseClass.isInstance(response))
+        {
             // We already have the return object
             return responseClass.cast(response);
         }
         StringBuilder err = new StringBuilder();
         int statusCode = response.getStatusCode();
-        if ((statusCode < 200) || (statusCode >= 300)) {
+        if ((statusCode < 200) || (statusCode >= 300))
+        {
             err.append(Resources.getString("badStatus", statusCode));
             handleError(err.toString(), response);
         }
         Object object = null;
-        try {
+        try
+        {
             object = HttpUtil.decodeObject(response.getContent(), null, responseContext);
-            if (_logger.isTraceEnabled()) {
+            if (_logger.isTraceEnabled())
+            {
                 _logger.trace("decoded: " + response.getContent());
             }
         }
-        catch (HttpClientException ex) {
+        catch (HttpClientException ex)
+        {
             err.append(Resources.getString("decodeException", ex.getMessage()));
             handleError(err.toString(), response);
         }
 
         T responseObject = null;
-        if (responseClass.isInstance(object)) {
+        if (responseClass.isInstance(object))
+        {
             responseObject = responseClass.cast(object);
         }
-        else {
+        else
+        {
             handleError(Resources.getString("unexpectedResponse"), response);
         }
         return responseObject;
@@ -380,12 +417,15 @@ public class AWSEndpointImpl implements AWSEndpoint
         int e1 = 0, e2 = 0;
         boolean done = (content == null);
 
-        while (!done) {
+        while (!done)
+        {
             done = true;
             e1 = content.indexOf("<Error>", e1);
-            if (e1 >= 0) {
+            if (e1 >= 0)
+            {
                 e2 = content.indexOf("</Error>", e1 + "<Error>".length());
-                if (e2 > e1) {
+                if (e2 > e1)
+                {
                     done = false;
                     errors.add(parseError(content, e1, e2));
                     e1 = e2;
@@ -400,22 +440,26 @@ public class AWSEndpointImpl implements AWSEndpoint
         AWSError error = new AWSError();
 
         String value = getValue(content, "<Code>", "</Code>", e1, e2);
-        if (value != null) {
+        if (value != null)
+        {
             error.setCode(value);
         }
 
         value = getValue(content, "<Message>", "</Message>", e1, e2);
-        if (value != null) {
+        if (value != null)
+        {
             error.setMessage(value);
         }
 
         value = getValue(content, "<Resource>", "</Resource>", e1, e2);
-        if (value != null) {
+        if (value != null)
+        {
             error.setResource(value);
         }
 
         value = getValue(content, "<RequestId>", "</RequestId>", e1, e2);
-        if (value != null) {
+        if (value != null)
+        {
             error.setRequestId(value);
         }
         return error;
@@ -425,10 +469,12 @@ public class AWSEndpointImpl implements AWSEndpoint
     {
         String value = null;
         int iStart = content.indexOf(startTag, minIdx);
-        if ((iStart >= 0) && (iStart < maxIdx)) {
+        if ((iStart >= 0) && (iStart < maxIdx))
+        {
             int iContent = iStart + startTag.length();
             int iEnd = content.indexOf(endTag, iContent);
-            if ((iEnd > 0) && (iEnd < maxIdx)) {
+            if ((iEnd > 0) && (iEnd < maxIdx))
+            {
                 value = content.substring(iContent, iEnd);
             }
         }
@@ -445,7 +491,8 @@ public class AWSEndpointImpl implements AWSEndpoint
     public String encode(String objClassPath, Object obj)
     {
         JAXBContext objContext = getContext(objClassPath);
-        if (objContext == null) {
+        if (objContext == null)
+        {
             throw new AWSAdapterException(Resources.getString("missingEncodeContext", objClassPath));
         }
         return doEncode(obj, objContext);
@@ -454,16 +501,19 @@ public class AWSEndpointImpl implements AWSEndpoint
     private String doEncode(Object obj, JAXBContext objContext)
     {
         ByteArrayOutputStream os = new ByteArrayOutputStream();
-        try {
+        try
+        {
             Marshaller marshaller = objContext.createMarshaller();
             marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
             marshaller.marshal(obj, os);
-            if (_logger.isTraceEnabled()) {
+            if (_logger.isTraceEnabled())
+            {
                 _logger.trace("encoded: " + os.toString());
             }
             return os.toString();
         }
-        catch (Exception ex) {
+        catch (Exception ex)
+        {
             AWSEndpointImpl._logger.error("encode Exception: " + ex);
             throw new AWSAdapterException(Resources.getString("encodeException", ex));
         }
